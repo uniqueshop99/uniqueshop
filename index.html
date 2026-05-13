@@ -3,111 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unique Shop - Games Top Up</title>
+    <title>Unique Shop UI - Fixed</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            font-family: sans-serif;
+            background-color: #f7f9fc;
             margin: 0;
             padding: 20px;
         }
 
-        /* Container for Grid */
-        .games-grid {
+        /* 1st Screenshot-er moto Grid Layout */
+        .card-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2nd Screenshot-er moto 2 column */
+            grid-template-columns: repeat(2, 1fr); /* Pasapasi 2ti box */
             gap: 15px;
-            max-width: 500px;
+            max-width: 450px;
             margin: 0 auto;
         }
 
-        /* Card Design */
-        .game-card {
+        /* Exact 1st Screenshot Card Style */
+        .topup-card {
             background: #fff;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Halko shadow */
             text-align: center;
+            border: 1px solid #eaeaea;
             display: flex;
             flex-direction: column;
         }
 
-        /* Grey box-er poriborte ekhon image show korbe */
-        .game-card img {
+        /* Grey Box-er jaygay apnar Chobi */
+        .topup-card img {
             width: 100%;
             height: auto;
-            aspect-ratio: 1 / 1; /* Chobiti square thakbe screenshot-er moto */
+            aspect-ratio: 1 / 1; /* Square box rakhar jonno */
             object-fit: cover;
             display: block;
         }
 
-        .card-body {
+        .card-footer {
             padding: 15px 10px;
+            background: #fff;
         }
 
-        .game-title {
-            font-size: 14px;
-            font-weight: bold;
+        .title {
+            font-size: 13px;
+            font-weight: 700;
             color: #333;
             margin-bottom: 12px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        /* Order Now Button - Thik Screenshot-er moto Deep Blue */
-        .order-btn {
+        /* Deep Blue Button - Exactly like Screenshot 1 */
+        .order-button {
             background-color: #283891;
             color: white;
             text-decoration: none;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 6px;
             display: block;
             font-size: 13px;
             font-weight: bold;
-            transition: 0.3s;
         }
 
-        .order-btn:hover {
-            background-color: #1a2563;
-        }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center; color: #283891; border-bottom: 2px solid #283891; display: table; margin: 20px auto; padding-bottom: 5px;">GAMES TOP UP</h2>
-
-    <div class="games-grid">
-        <div class="game-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID Topup">
-            <div class="card-body">
-                <div class="game-title">Free Fire UID Topup</div>
-                <a href="#" class="order-btn">Order Now</a>
+    <div class="card-container">
+        <div class="topup-card">
+            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID">
+            <div class="card-footer">
+                <div class="title">Free Fire UID Topup</div>
+                <a href="#" class="order-button">Order Now</a>
             </div>
         </div>
 
-        <div class="game-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Unipin Voucher">
-            <div class="card-body">
-                <div class="game-title">Unipin Voucher</div>
-                <a href="#" class="order-btn">Order Now</a>
-            </div>
-        </div>
-
-        <div class="game-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Weekly & Monthly">
-            <div class="card-body">
-                <div class="game-title">Weekly & Monthly</div>
-                <a href="#" class="order-btn">Order Now</a>
-            </div>
-        </div>
-
-        <div class="game-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Weekly Lite">
-            <div class="card-body">
-                <div class="game-title">Weekly Lite</div>
-                <a href="#" class="order-btn">Order Now</a>
+        <div class="topup-card">
+            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Unipin">
+            <div class="card-footer">
+                <div class="title">Unipin Voucher</div>
+                <a href="#" class="order-button">Order Now</a>
             </div>
         </div>
     </div>
