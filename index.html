@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Fire Top-Up (Garena Diamonds)</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for better look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="ff-logo.png" alt="Free Fire Logo" onerror="this.src='https://images.unsplash.com/photo-1596489370603-9e5c46e30018?q=80&w=200&auto=format&fit=crop'">
+                <h1>FF TopUp BD</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Diamond Packages -->
+        <section class="packages">
+            <h2>Select Diamond Package</h2>
+            <div class="package-grid">
+                
+                <div class="package-card" onclick="selectPackage(1, 100, 80)">
+                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="100 Diamonds">
+                    <h3>100 Diamonds</h3>
+                    <p class="price">80 BDT</p>
+                    <button class="btn-select">Select</button>
+                </div>
+                
+                <div class="package-card" onclick="selectPackage(2, 310, 240)">
+                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="310 Diamonds">
+                    <h3>310 Diamonds</h3>
+                    <p class="price">240 BDT</p>
+                    <button class="btn-select">Select</button>
+                </div>
+                
+                <div class="package-card" onclick="selectPackage(3, 520, 400)">
+                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="520 Diamonds">
+                    <h3>520 Diamonds</h3>
+                    <p class="price">400 BDT</p>
+                    <button class="btn-select">Select</button>
+                </div>
+                
+                <div class="package-card" onclick="selectPackage(4, 1060, 800)">
+                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="1060 Diamonds">
+                    <h3>1060 Diamonds</h3>
+                    <p class="price">800 BDT</p>
+                    <button class="btn-select">Select</button>
+                </div>
+
+                <div class="package-card" onclick="selectPackage(5, 'Weekly Membership', 150)">
+                    <img src="https://img.utdstc.com/icon/847/f31/847f31c5188f4b008d3e23652615456384a56d956877b474271813e33f3e7904:200" alt="Weekly Membership">
+                    <h3>Weekly Membership</h3>
+                    <p class="price">150 BDT</p>
+                    <button class="btn-select">Select</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Form -->
+        <section class="payment-form">
+            <h2>Complete Your Purchase</h2>
+            <form id="topupForm" onsubmit="handleFormSubmit(event)">
+                <input type="text" id="playerID" name="playerID" placeholder="Enter Player ID (Required)" required>
+                
+                <input type="hidden" id="selectedPackageID" name="selectedPackageID" required>
+                <input type="hidden" id="selectedPackageName" name="selectedPackageName" required>
+                <input type="hidden" id="selectedPackagePrice" name="selectedPackagePrice" required>
+
+                <div class="payment-method">
+                    <h3>Select Payment Method</h3>
+                    <div class="method-options">
+                        <input type="radio" id="bkash" name="payment_method" value="bkash" required>
+                        <label for="bkash"><img src="https://e7.pngegg.com/pngimages/674/590/png-clipart/bkash-bangladesh-logo-bkash-symbol.png" alt="bKash Logo" height="30"></label>
+                        
+                        <input type="radio" id="nagad" name="payment_method" value="nagad">
+                        <label for="nagad"><img src="https://it-vision.ru/wp-content/uploads/2021/03/nagad-logo.png" alt="Nagad Logo" height="30"></label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Confirm and Pay</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 FF TopUp BD. For Testing Purposes Only.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
