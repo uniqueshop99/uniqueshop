@@ -3,106 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unique Shop - Topup UI</title>
+    <title>Unique Shop - Games Top Up</title>
     <style>
-        /* সাইটের মূল স্টাইল */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
             margin: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
         }
 
-        /* কার্ড ডিজাইন */
-        .card {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 320px;
+        /* 2nd Screenshot onujayi Card Design */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 500px; /* Test korar jonno limited kora */
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             text-align: center;
-            transition: 0.3s;
-            border: 1px solid #eee;
+            border: 1px solid #e0e0e0;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        /* ইমেজের অংশ - আপনার দেওয়া লিঙ্ক এখানে */
-        .card img {
+        /* Image Section - Ekhane apnar upload kora chobi thakbe */
+        .product-card img {
             width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background-color: #ddd;
+            height: auto;
+            display: block;
         }
 
-        .card-content {
-            padding: 20px;
+        .product-info {
+            padding: 15px;
         }
 
-        .card-content h3 {
-            margin: 0 0 15px;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        /* ইনপুট ফিল্ড */
-        .input-box {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .input-box:focus {
-            border-color: #2c3e50;
-        }
-
-        /* বাটন ডিজাইন (স্ক্রিনশটের মতো নীল বাটন) */
-        .btn-order {
-            background-color: #283891;
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
+        .product-title {
             font-size: 16px;
             font-weight: bold;
-            cursor: pointer;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* Order Now Button - Screenshot-er moto neel */
+        .order-btn {
+            background-color: #283891;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            width: 80%;
             transition: 0.3s;
         }
 
-        .btn-order:hover {
-            background-color: #1a237e;
+        .order-btn:hover {
+            background-color: #1a2563;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- আপনার ডিরেক্ট ইমেজ লিঙ্ক[cite: 1] -->
-        <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID Topup">
-        
-        <div class="card-content">
-            <h3>Free Fire UID Topup</h3>
+    <div class="grid-container">
+        <div class="product-card">
+            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID Topup">
             
-            <input type="text" class="input-box" placeholder="Enter Player ID (UID)">
-            
-            <select class="input-box">
-                <option value="">Select Diamond Package</option>
-                <option value="115">115 Diamonds - 85 TK</option>
-                <option value="240">240 Diamonds - 165 TK</option>
-                <option value="610">610 Diamonds - 410 TK</option>
-            </select>
+            <div class="product-info">
+                <div class="product-title">Free Fire UID Topup</div>
+                <a href="#" class="order-btn">Order Now</a>
+            </div>
+        </div>
 
-            <button class="btn-order">Order Now</button>
+        <div class="product-card">
+            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Unipin Voucher">
+            <div class="product-info">
+                <div class="product-title">Unipin Voucher</div>
+                <a href="#" class="order-btn">Order Now</a>
+            </div>
         </div>
     </div>
 
