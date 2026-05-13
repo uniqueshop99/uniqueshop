@@ -1,97 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unique Shop - Free Fire Topup</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Garena Topup UI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f0f0f;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .topup-card {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            width: 350px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        /* Apnar Upload kora Chobi ekhane boseche */
+        .topup-card img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ff4136;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            background: #252525;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 15px;
+        }
+        input:focus {
+            border-color: #ff4136;
+            box-shadow: 0 0 5px rgba(255, 65, 54, 0.3);
+        }
+        .btn-topup {
+            background: linear-gradient(45deg, #ff4136, #ff851b);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.4s;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .btn-topup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 65, 54, 0.4);
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Header Section -->
-    <header>
-        <div class="navbar">
-            <div class="logo">
-                <span class="u-logo">U</span>
-                <span class="logo-text">nique <span class="shop-text">Shop</span></span>
-            </div>
-            <div class="auth-buttons">
-                <button class="login-btn">Login</button>
-                <button class="register-btn">Register</button>
-            </div>
+    <div class="topup-card">
+        <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Topup Banner">
+        
+        <h2 style="margin-top: 0;">UID Top-up</h2>
+        
+        <div class="input-group">
+            <label for="uid">Player UID</label>
+            <input type="text" id="uid" placeholder="Enter Player ID">
         </div>
-    </header>
 
-    <!-- Notice Bar -->
-    <div class="notice-bar">
-        <marquee behavior="scroll" direction="left">Unique Shop-এ স্বাগতম! দ্রুত ও নিরাপদ ফ্রি ফায়ার টপ-আপের নিশ্চয়তা।</marquee>
+        <div class="input-group">
+            <label for="pack">Select Diamond Package</label>
+            <input type="text" id="pack" placeholder="e.g. 100 Diamonds">
+        </div>
+
+        <button class="btn-topup">Buy Now</button>
+        
+        <p style="font-size: 11px; color: #555; margin-top: 15px;">Secure API Automation Enabled</p>
     </div>
-
-    <!-- Main Content -->
-    <main class="container">
-        <h2 class="section-title">GAMES TOP UP</h2>
-        <div class="games-grid">
-            
-            <!-- 1. Free Fire UID Topup -->
-            <div class="game-card">
-                <div class="card-img" style="background-image: url('free-fire-portada1-1536x864.jpg');"></div>
-                <div class="card-info">
-                    <h3>Free Fire UID Topup</h3>
-                    <button class="buy-btn">Order Now</button>
-                </div>
-            </div>
-
-            <!-- 2. Unipin Voucher -->
-            <div class="game-card">
-                <div class="card-img" style="background-image: url('IMG_20260513_123829_898.jpg');"></div>
-                <div class="card-info">
-                    <h3>Unipin Voucher</h3>
-                    <button class="buy-btn">Order Now</button>
-                </div>
-            </div>
-
-            <!-- 3. Weekly & Monthly Offer -->
-            <div class="game-card">
-                <div class="card-img" style="background-image: url('IMG_20260513_124214_322.jpg');"></div>
-                <div class="card-info">
-                    <h3>Weekly & Monthly</h3>
-                    <button class="buy-btn">Order Now</button>
-                </div>
-            </div>
-
-            <!-- 4. Weekly Lite -->
-            <div class="game-card">
-                <div class="card-img" style="background-image: url('IMG_20260513_124058_711.jpg');"></div>
-                <div class="card-info">
-                    <h3>Weekly Lite</h3>
-                    <button class="buy-btn">Order Now</button>
-                </div>
-            </div>
-
-            <!-- 5. Level Up Pass -->
-            <div class="game-card">
-                <div class="card-img" style="background-image: url('IMG_20260513_124137_525.jpg');"></div>
-                <div class="card-info">
-                    <h3>Level Up Pass</h3>
-                    <button class="buy-btn">Order Now</button>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Footer Section -->
-    <footer>
-        <div class="footer-content">
-            <h3>STAY CONNECTED</h3>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-whatsapp"></i></a>
-            </div>
-            <p>&copy; 2026 Unique Shop. All Rights Reserved. <br> Developed by MD. MAHBUBUR RAHMAN</p>
-        </div>
-    </footer>
 
 </body>
 </html>
