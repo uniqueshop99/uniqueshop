@@ -96,7 +96,7 @@ body {
     gap: 20px;
 }
 
-/* Card Styles with Color Gradients */
+/* Card Styles */
 .game-card {
     background: white;
     border-radius: 10px;
@@ -106,36 +106,34 @@ body {
     transition: 0.3s;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 15px;
+    min-height: 280px;
 }
 
 .game-card:hover {
     transform: translateY(-5px);
 }
 
-.card-icon {
-    font-size: 50px;
-    margin-bottom: 15px;
-    height: 120px;
+/* Image Setup - এটি আপনার ছবিগুলোকে দেখাবে */
+.card-img {
     width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    color: white;
+    height: 150px; 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-bottom: 1px solid #eee;
 }
 
-/* Specific Themes for Cards */
-.ff-uid .card-icon { background: linear-gradient(135deg, #ff416c, #ff4b2b); } /* Red */
-.unipin .card-icon { background: linear-gradient(135deg, #2193b0, #6dd5ed); } /* Blue */
-.weekly .card-icon { background: linear-gradient(135deg, #8e2de2, #4a00e0); } /* Purple */
-.lite .card-icon { background: linear-gradient(135deg, #00c6ff, #0072ff); } /* Cyan */
-.level-up .card-icon { background: linear-gradient(135deg, #f2994a, #f2c94c); } /* Gold */
+.card-info {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+}
 
 .card-info h3 {
     font-size: 16px;
-    margin: 10px 0;
+    margin-bottom: 15px;
     color: #333;
 }
 
@@ -160,6 +158,6 @@ footer {
     background: #0d1b3e;
     color: white;
     text-align: center;
-    padding: 40px 0;
+    padding: 30px 0;
     margin-top: 50px;
 }
