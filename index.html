@@ -3,90 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unique Shop UI - Fixed</title>
+    <title>Unique Shop - Games Top Up</title>
     <style>
         body {
-            font-family: sans-serif;
-            background-color: #f7f9fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
-        /* 1st Screenshot-er moto Grid Layout */
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Pasapasi 2ti box */
-            gap: 15px;
-            max-width: 450px;
-            margin: 0 auto;
-        }
-
-        /* Exact 1st Screenshot Card Style */
-        .topup-card {
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Halko shadow */
-            text-align: center;
-            border: 1px solid #eaeaea;
+        /* Header Section */
+        header {
+            background: white;
+            padding: 10px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
-        /* Grey Box-er jaygay apnar Chobi */
-        .topup-card img {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 1 / 1; /* Square box rakhar jonno */
-            object-fit: cover;
-            display: block;
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #283891;
         }
-
-        .card-footer {
-            padding: 15px 10px;
-            background: #fff;
-        }
-
-        .title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        /* Deep Blue Button - Exactly like Screenshot 1 */
-        .order-button {
-            background-color: #283891;
-            color: white;
+        .logo span { color: #e91e63; }
+        .auth-btns .login {
+            border: 1px solid #e91e63;
+            color: #e91e63;
+            padding: 5px 15px;
             text-decoration: none;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+        .auth-btns .register {
+            background: #e91e63;
+            color: white;
+            padding: 5px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        /* Notice Bar */
+        .notice-bar {
+            background: #ff8c00;
+            color: white;
             padding: 10px;
-            border-radius: 6px;
-            display: block;
+            margin: 10px;
+            border-radius: 5px;
             font-size: 13px;
+            position: relative;
+        }
+
+        /* Slider Placeholder */
+        .slider {
+            background: #111;
+            margin: 10px;
+            height: 150px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+        }
+
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            color: #283891;
+            margin: 20px 0;
+            font-weight: bold;
+            position: relative;
+        }
+        .section-title::before, .section-title::after {
+            content: " ——— ";
+            color: #ff4136;
+        }
+
+        /* Games Grid - 2 Column */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 10px;
+        }
+
+        /* Game Card Style */
+        .game-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .game-card img {
+            width: 100%;
+            display: block;
+            border-bottom: 1px solid #eee;
+        }
+        .game-info {
+            padding: 10px 5px;
+        }
+        .game-info p {
+            margin: 0;
+            font-size: 11px;
+            color: #333;
             font-weight: bold;
         }
 
+        /* App Download Banner */
+        .app-banner {
+            background: #fff;
+            border: 1px solid #ff007a;
+            margin: 15px 10px;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .app-banner img { width: 40px; margin-right: 15px; }
+
+        /* Footer */
+        footer {
+            background: #0a1133;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 20px;
+        }
+        .footer-title { font-weight: bold; margin-bottom: 15px; display: block; }
+        .contact-info { font-size: 12px; color: #ccc; }
     </style>
 </head>
 <body>
 
-    <div class="card-container">
-        <div class="topup-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID">
-            <div class="card-footer">
-                <div class="title">Free Fire UID Topup</div>
-                <a href="#" class="order-button">Order Now</a>
-            </div>
+    <header>
+        <div class="logo">U<span>NIQUE</span> SHOP</div>
+        <div class="auth-btns">
+            <a href="#" class="login">Login</a>
+            <a href="#" class="register">Register</a>
         </div>
+    </header>
 
-        <div class="topup-card">
-            <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Unipin">
-            <div class="card-footer">
-                <div class="title">Unipin Voucher</div>
-                <a href="#" class="order-button">Order Now</a>
-            </div>
-        </div>
+    <div class="notice-bar">
+        Notice: Unique Shop-e shagotom! Duto o nirapod top-up er jonno amader shathey thakun...
     </div>
 
-</body>
-</html>
+    <div class="slider">
+        PROMO BANNER SLIDER
+    </div>
+
+    <div class="section-title">GAMES TOP UP</div>
+
+    <div class="games-grid">
+        <div class="game-card">
+            <img src="
