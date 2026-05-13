@@ -3,98 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garena Topup UI</title>
+    <title>Unique Shop - Topup UI</title>
     <style>
+        /* সাইটের মূল স্টাইল */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f0f0f;
-            color: white;
+            background-color: #f4f7f6;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
         }
-        .topup-card {
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
-            width: 350px;
+
+        /* কার্ড ডিজাইন */
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 320px;
+            overflow: hidden;
             text-align: center;
-            border: 1px solid #333;
+            transition: 0.3s;
+            border: 1px solid #eee;
         }
-        /* Apnar Upload kora Chobi ekhane boseche */
-        .topup-card img {
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* ইমেজের অংশ - আপনার দেওয়া লিঙ্ক এখানে */
+        .card img {
             width: 100%;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 2px solid #ff4136;
+            height: 180px;
+            object-fit: cover;
+            background-color: #ddd;
         }
-        .input-group {
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-content h3 {
+            margin: 0 0 15px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        /* ইনপুট ফিল্ড */
+        .input-box {
+            width: 100%;
+            padding: 10px;
             margin-bottom: 15px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #aaa;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #444;
-            background: #252525;
-            color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             box-sizing: border-box;
             outline: none;
-            font-size: 15px;
         }
-        input:focus {
-            border-color: #ff4136;
-            box-shadow: 0 0 5px rgba(255, 65, 54, 0.3);
+
+        .input-box:focus {
+            border-color: #2c3e50;
         }
-        .btn-topup {
-            background: linear-gradient(45deg, #ff4136, #ff851b);
+
+        /* বাটন ডিজাইন (স্ক্রিনশটের মতো নীল বাটন) */
+        .btn-order {
+            background-color: #283891;
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 12px;
             width: 100%;
-            border-radius: 10px;
+            border-radius: 8px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.4s;
-            font-size: 16px;
-            margin-top: 10px;
+            transition: 0.3s;
         }
-        .btn-topup:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 65, 54, 0.4);
+
+        .btn-order:hover {
+            background-color: #1a237e;
         }
     </style>
 </head>
 <body>
 
-    <div class="topup-card">
-        <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Topup Banner">
+    <div class="card">
+        <!-- আপনার ডিরেক্ট ইমেজ লিঙ্ক[cite: 1] -->
+        <img src="https://i.ibb.co.com/k2z9tKwS/image.png" alt="Free Fire UID Topup">
         
-        <h2 style="margin-top: 0;">UID Top-up</h2>
-        
-        <div class="input-group">
-            <label for="uid">Player UID</label>
-            <input type="text" id="uid" placeholder="Enter Player ID">
-        </div>
+        <div class="card-content">
+            <h3>Free Fire UID Topup</h3>
+            
+            <input type="text" class="input-box" placeholder="Enter Player ID (UID)">
+            
+            <select class="input-box">
+                <option value="">Select Diamond Package</option>
+                <option value="115">115 Diamonds - 85 TK</option>
+                <option value="240">240 Diamonds - 165 TK</option>
+                <option value="610">610 Diamonds - 410 TK</option>
+            </select>
 
-        <div class="input-group">
-            <label for="pack">Select Diamond Package</label>
-            <input type="text" id="pack" placeholder="e.g. 100 Diamonds">
+            <button class="btn-order">Order Now</button>
         </div>
-
-        <button class="btn-topup">Buy Now</button>
-        
-        <p style="font-size: 11px; color: #555; margin-top: 15px;">Secure API Automation Enabled</p>
     </div>
 
 </body>
