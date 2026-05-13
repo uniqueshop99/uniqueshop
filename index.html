@@ -1,99 +1,62 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Fire Top-Up (Garena Diamonds)</title>
+    <title>Unique Shop - Free Fire Topup</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts for better look -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for social icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <!-- Header Section -->
     <header>
-        <div class="container">
+        <div class="navbar">
             <div class="logo">
-                <img src="ff-logo.png" alt="Free Fire Logo" onerror="this.src='https://images.unsplash.com/photo-1596489370603-9e5c46e30018?q=80&w=200&auto=format&fit=crop'">
-                <h1>FF TopUp BD</h1>
+                <span class="u-logo">U</span>
+                <span class="logo-text">nique <span class="shop-text">Shop</span></span>
+            </div>
+            <div class="auth-buttons">
+                <button class="login-btn">Login</button>
+                <button class="register-btn">Register</button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Notice Section -->
+    <div class="notice-bar">
+        <p><strong>Notice:</strong> Unique Shop-এ আপনাকে স্বাগতম! যেকোনো সমস্যায় আমাদের হোয়াটসঅ্যাপে মেসেজ দিন।</p>
+    </div>
+
+    <!-- Main Content (Games Grid) -->
     <main class="container">
-        <!-- Diamond Packages -->
-        <section class="packages">
-            <h2>Select Diamond Package</h2>
-            <div class="package-grid">
-                
-                <div class="package-card" onclick="selectPackage(1, 100, 80)">
-                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="100 Diamonds">
-                    <h3>100 Diamonds</h3>
-                    <p class="price">80 BDT</p>
-                    <button class="btn-select">Select</button>
-                </div>
-                
-                <div class="package-card" onclick="selectPackage(2, 310, 240)">
-                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="310 Diamonds">
-                    <h3>310 Diamonds</h3>
-                    <p class="price">240 BDT</p>
-                    <button class="btn-select">Select</button>
-                </div>
-                
-                <div class="package-card" onclick="selectPackage(3, 520, 400)">
-                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="520 Diamonds">
-                    <h3>520 Diamonds</h3>
-                    <p class="price">400 BDT</p>
-                    <button class="btn-select">Select</button>
-                </div>
-                
-                <div class="package-card" onclick="selectPackage(4, 1060, 800)">
-                    <img src="https://image-cdn.hypixel.net/hypixel-server/723e4299ec5d8208a70659635031b6ccae85e13a.png" alt="1060 Diamonds">
-                    <h3>1060 Diamonds</h3>
-                    <p class="price">800 BDT</p>
-                    <button class="btn-select">Select</button>
-                </div>
-
-                <div class="package-card" onclick="selectPackage(5, 'Weekly Membership', 150)">
-                    <img src="https://img.utdstc.com/icon/847/f31/847f31c5188f4b008d3e23652615456384a56d956877b474271813e33f3e7904:200" alt="Weekly Membership">
-                    <h3>Weekly Membership</h3>
-                    <p class="price">150 BDT</p>
-                    <button class="btn-select">Select</button>
-                </div>
+        <h2 class="section-title">GAMES TOP UP</h2>
+        <div class="games-grid">
+            <!-- Item 1 -->
+            <div class="game-card">
+                <div class="card-img" style="background-image: url('https://img.freepik.com/premium-photo/fire-letter-v-design-background_1022485-11005.jpg');"></div>
+                <p>Free Fire UID Topup</p>
             </div>
-        </section>
-
-        <!-- Payment Form -->
-        <section class="payment-form">
-            <h2>Complete Your Purchase</h2>
-            <form id="topupForm" onsubmit="handleFormSubmit(event)">
-                <input type="text" id="playerID" name="playerID" placeholder="Enter Player ID (Required)" required>
-                
-                <input type="hidden" id="selectedPackageID" name="selectedPackageID" required>
-                <input type="hidden" id="selectedPackageName" name="selectedPackageName" required>
-                <input type="hidden" id="selectedPackagePrice" name="selectedPackagePrice" required>
-
-                <div class="payment-method">
-                    <h3>Select Payment Method</h3>
-                    <div class="method-options">
-                        <input type="radio" id="bkash" name="payment_method" value="bkash" required>
-                        <label for="bkash"><img src="https://e7.pngegg.com/pngimages/674/590/png-clipart/bkash-bangladesh-logo-bkash-symbol.png" alt="bKash Logo" height="30"></label>
-                        
-                        <input type="radio" id="nagad" name="payment_method" value="nagad">
-                        <label for="nagad"><img src="https://it-vision.ru/wp-content/uploads/2021/03/nagad-logo.png" alt="Nagad Logo" height="30"></label>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit">Confirm and Pay</button>
-            </form>
-        </section>
+            <!-- Item 2 -->
+            <div class="game-card">
+                <div class="card-img" style="background-image: url('https://img.freepik.com/premium-photo/gold-diamond-blue-background_935408-542.jpg');"></div>
+                <p>Weekly & Monthly Offer</p>
+            </div>
+            <!-- এভাবে আপনি আরও কার্ড যোগ করতে পারেন -->
+        </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer Section -->
     <footer>
-        <div class="container">
-            <p>&copy; 2026 FF TopUp BD. For Testing Purposes Only.</p>
+        <div class="footer-content">
+            <h3>STAY CONNECTED</h3>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+            <p>&copy; 2026 Unique Shop. All Rights Reserved.</p>
         </div>
     </footer>
 
