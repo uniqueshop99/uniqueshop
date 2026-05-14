@@ -887,7 +887,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA8XSewlMspeWEBdC72IGs_Ez4GLdel9CY",
@@ -1016,6 +1016,29 @@
       await signOut(auth);
       showToast('Logout হয়েছে।', 'info');
     };
+
+    // LOAD NOTICE from Firebase
+    onValue(ref(db, 'settings/notice'), (snap) => {
+      const text = snap.val() || '';
+      const el = document.getElementById('notice-text');
+      if (el) el.textContent = text;
+    });
+
+    // LOAD SLIDER from Firebase
+    onValue(ref(db, 'settings/slider'), (snap) => {
+      const data = snap.val() || {};
+      for (let i = 1; i <= 4; i++) {
+        const url = data['slide' + i];
+        const slide = document.getElementById('slide-' + (i-1));
+        if (slide) {
+          if (url) {
+            slide.innerHTML = '<img src="' + url + '" alt="Slide ' + i + '" style="width:100%;height:100%;object-fit:cover;">';
+          } else {
+            slide.innerHTML = '<div class="slide-empty"><span>🖼️</span>Slide ' + i + ' — Admin panel থেকে image দিন</div>';
+          }
+        }
+      }
+    });
   </script>
 
 </body>
