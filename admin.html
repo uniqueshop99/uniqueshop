@@ -498,6 +498,8 @@
   <div class="tabs">
     <div class="tab active" onclick="switchTab('notice')">📢 Notice</div>
     <div class="tab" onclick="switchTab('slider')">🖼️ Slider</div>
+    <div class="tab" onclick="switchTab('logos')">💳 Logos</div>
+    <div class="tab" onclick="switchTab('refer')">🎁 Refer</div>
     <div class="tab" onclick="switchTab('users')">👥 Users</div>
   </div>
 
@@ -547,6 +549,68 @@
         </div>
         <br>
         <button class="btn-save" onclick="saveSlider()">✅ Save করো</button>
+      </div>
+    </div>
+
+    <!-- LOGOS TAB -->
+    <div class="tab-content" id="tab-logos">
+      <div class="card">
+        <div class="card-title">
+          <div class="icon">💳</div>
+          Payment Method Logo
+        </div>
+        <p style="font-size:12px;color:#888aaa;margin-bottom:16px;">প্রতিটি payment method এর logo URL দাও (imgbb.com থেকে upload করে direct link দাও)</p>
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">🩷 bKash Logo URL</label>
+        <input class="input-field" id="logo-bkash-url" placeholder="https://i.ibb.co/.../bkash.png">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">🧡 Nagad Logo URL</label>
+        <input class="input-field" id="logo-nagad-url" placeholder="https://i.ibb.co/.../nagad.png">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">💜 Rocket Logo URL</label>
+        <input class="input-field" id="logo-rocket-url" placeholder="https://i.ibb.co/.../rocket.png">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">💚 Upay Logo URL</label>
+        <input class="input-field" id="logo-upay-url" placeholder="https://i.ibb.co/.../upay.png">
+
+        <button class="btn-save" onclick="saveLogos()">✅ Save করো</button>
+      </div>
+    </div>
+
+    <!-- REFER TAB -->
+    <div class="tab-content" id="tab-refer">
+      <div class="card">
+        <div class="card-title"><div class="icon">🔗</div>Site Link & Rules</div>
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Website Link</label>
+        <input class="input-field" id="refer-site-link" placeholder="https://mahirabsar13-star.github.io/First-project/">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Register করলে Diamond (সংখ্যা)</label>
+        <input class="input-field" id="refer-diamond-per-ref" type="number" placeholder="যেমন: 50">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Rule Text (user দেখবে)</label>
+        <input class="input-field" id="refer-rule-text-admin" placeholder="বন্ধু Register করলে 50 Diamond পাবেন!">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Purchase Rule Text</label>
+        <input class="input-field" id="refer-purchase-rule-admin" placeholder="💎 বন্ধু কিছু কিনলে 20 Diamond বোনাস!">
+
+        <button class="btn-save" onclick="saveReferSettings()">✅ Save করো</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon">🎁</div>Redeem Options</div>
+        <p style="font-size:12px;color:#888aaa;margin-bottom:12px;">User যা redeem করতে পারবে তা এখানে add করো</p>
+        <div id="redeem-options-admin"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input class="input-field" style="margin:0;flex:1;" id="new-redeem-name" placeholder="Option নাম (যেমন: ৳10 Balance)">
+          <input class="input-field" style="margin:0;width:100px;" id="new-redeem-diamonds" type="number" placeholder="💎 Cost">
+        </div>
+        <button class="btn-save" style="margin-top:10px;" onclick="addRedeemOption()">➕ Add করো</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon">📋</div>Redeem Requests</div>
+        <div id="redeem-requests-list"><div class="loading">লোড হচ্ছে...</div></div>
       </div>
     </div>
 
@@ -609,6 +673,8 @@
       document.getElementById('admin-display-name').textContent = user.displayName || user.email;
       loadNotice();
       loadSlider();
+      loadLogos();
+      loadReferSettings();
       loadUsers();
     } else if (user && user.email !== ADMIN_EMAIL) {
       showToast('এই account এ admin access নেই!', 'error');
@@ -682,6 +748,99 @@
     }
     await set(ref(db, 'settings/slider'), data);
     showToast('Slider save হয়েছে! ✅');
+  };
+
+  // LOGOS
+  function loadLogos() {
+    onValue(ref(db, 'settings/payment_logos'), (snap) => {
+      const logos = snap.val() || {};
+      ['bkash','nagad','rocket','upay'].forEach(m => {
+        const el = document.getElementById('logo-' + m + '-url');
+        if (el) el.value = logos[m] || '';
+      });
+    });
+  }
+
+  window.saveLogos = async function() {
+    const data = {
+      bkash: document.getElementById('logo-bkash-url').value.trim(),
+      nagad: document.getElementById('logo-nagad-url').value.trim(),
+      rocket: document.getElementById('logo-rocket-url').value.trim(),
+      upay: document.getElementById('logo-upay-url').value.trim(),
+    };
+    await set(ref(db, 'settings/payment_logos'), data);
+    showToast('Logo save হয়েছে! ✅');
+  };
+
+  // REFER SETTINGS
+  function loadReferSettings() {
+    onValue(ref(db, 'settings/refer'), (snap) => {
+      const s = snap.val() || {};
+      document.getElementById('refer-site-link').value = s.siteLink || '';
+      document.getElementById('refer-diamond-per-ref').value = s.diamondPerRef || 50;
+      document.getElementById('refer-rule-text-admin').value = s.ruleText || '';
+      document.getElementById('refer-purchase-rule-admin').value = s.purchaseRule || '';
+    });
+
+    // Redeem options
+    onValue(ref(db, 'settings/redeem_options'), (snap) => {
+      const opts = snap.val() || {};
+      const container = document.getElementById('redeem-options-admin');
+      const list = Object.entries(opts);
+      if (!list.length) { container.innerHTML = '<p style="font-size:12px;color:#888aaa;">কোনো option নেই</p>'; return; }
+      container.innerHTML = list.map(([key, opt]) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#0d0d1a;border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#fff;">${opt.name}</div>
+            <div style="font-size:12px;color:#4fc3f7;">💎 ${opt.diamonds}</div>
+          </div>
+          <button onclick="deleteRedeemOption('${key}')" style="background:#c0202e;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">🗑️</button>
+        </div>
+      `).join('');
+    });
+
+    // Redeem requests
+    onValue(ref(db, 'redeem_requests'), (snap) => {
+      const reqs = snap.val() || {};
+      const list = Object.entries(reqs).reverse();
+      const container = document.getElementById('redeem-requests-list');
+      if (!list.length) { container.innerHTML = '<div style="text-align:center;padding:20px;color:#888aaa;font-size:13px;">কোনো request নেই</div>'; return; }
+      container.innerHTML = list.map(([key, r]) => `
+        <div style="background:#0d0d1a;border:1px solid #2a2a4a;border-radius:10px;padding:12px;margin-bottom:10px;">
+          <div style="font-weight:700;color:#fff;font-size:14px;">${r.name || 'User'}</div>
+          <div style="font-size:12px;color:#a0a0c0;margin:4px 0;">📦 ${r.item} — 💎 ${r.diamonds}</div>
+          <div style="font-size:11px;color:#666;">${new Date(r.createdAt).toLocaleString('bn-BD')}</div>
+          <span style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${r.status==='pending'?'rgba(244,162,97,0.2)':'rgba(46,204,113,0.2)'};color:${r.status==='pending'?'#f4a261':'#2ecc71'};">${r.status==='pending'?'⏳ Pending':'✅ Done'}</span>
+        </div>
+      `).join('');
+    });
+  }
+
+  window.saveReferSettings = async function() {
+    await set(ref(db, 'settings/refer'), {
+      siteLink: document.getElementById('refer-site-link').value.trim(),
+      diamondPerRef: parseInt(document.getElementById('refer-diamond-per-ref').value) || 50,
+      ruleText: document.getElementById('refer-rule-text-admin').value.trim(),
+      purchaseRule: document.getElementById('refer-purchase-rule-admin').value.trim(),
+    });
+    showToast('Refer settings save হয়েছে! ✅');
+  };
+
+  window.addRedeemOption = async function() {
+    const name = document.getElementById('new-redeem-name').value.trim();
+    const diamonds = parseInt(document.getElementById('new-redeem-diamonds').value) || 0;
+    if (!name || !diamonds) { showToast('নাম ও diamond দিন!', 'error'); return; }
+    const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await fbPush(ref(db, 'settings/redeem_options'), { name, diamonds });
+    document.getElementById('new-redeem-name').value = '';
+    document.getElementById('new-redeem-diamonds').value = '';
+    showToast('Option add হয়েছে! ✅');
+  };
+
+  window.deleteRedeemOption = async function(key) {
+    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await remove(ref(db, 'settings/redeem_options/' + key));
+    showToast('Option delete হয়েছে!', 'info');
   };
 
   // USERS
