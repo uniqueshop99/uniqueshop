@@ -732,11 +732,10 @@
 
 <div id="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyA8XSewlMspeWEBdC72IGs_Ez4GLdel9CY",
     authDomain: "topup-eb1a6.firebaseapp.com",
@@ -747,16 +746,15 @@
     appId: "1:777227604718:web:bc14782fc130d437a699ff"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-  const googleProvider = new GoogleAuthProvider();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-  // ⚠️ এখানে তোমার admin email দাও
   const ADMIN_EMAIL = 'mahirabsar13@gmail.com';
 
   // Auth state
-  onAuthStateChanged(auth, (user) => {
+  auth.onAuthStateChanged((user) => {
     if (user && user.email === ADMIN_EMAIL) {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('admin-panel').style.display = 'block';
@@ -765,10 +763,12 @@
       loadSlider();
       loadLogos();
       loadReferSettings();
+      loadProductOptions('uid_bd');
+      loadProductRules('uid_bd');
       loadUsers();
     } else if (user && user.email !== ADMIN_EMAIL) {
       showToast('এই account এ admin access নেই!', 'error');
-      signOut(auth);
+      auth.signOut();
     } else {
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('admin-panel').style.display = 'none';
@@ -776,54 +776,47 @@
   });
 
   // LOGIN
-  window.adminLogin = async function() {
+  function adminLogin() {
     const email = document.getElementById('admin-email').value;
     const pass = document.getElementById('admin-password').value;
     if (!email || !pass) { showToast('ইমেইল ও পাসওয়ার্ড দিন!', 'error'); return; }
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-    } catch(e) {
-      showToast('Login হয়নি! ইমেইল বা পাসওয়ার্ড ভুল।', 'error');
-    }
-  };
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch(() => showToast('Login হয়নি! ইমেইল বা পাসওয়ার্ড ভুল।', 'error'));
+  }
 
-  window.adminGoogleLogin = async function() {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch(e) {
-      showToast('Google Login হয়নি!', 'error');
-    }
-  };
+  function adminGoogleLogin() {
+    auth.signInWithPopup(googleProvider)
+      .catch(() => showToast('Google Login হয়নি!', 'error'));
+  }
 
-  window.adminLogout = async function() {
-    await signOut(auth);
+  function adminLogout() {
+    auth.signOut();
     showToast('Logout হয়েছে।', 'info');
-  };
+  }
 
   // NOTICE
   function loadNotice() {
-    onValue(ref(db, 'settings/notice'), (snap) => {
+    db.ref('settings/notice').on('value', (snap) => {
       const val = snap.val() || '';
       document.getElementById('current-notice-text').textContent = val || '(খালি)';
       document.getElementById('notice-input').value = val;
     });
   }
 
-  window.saveNotice = async function() {
-    const text = document.getElementById('notice-input').value.trim();
-    await set(ref(db, 'settings/notice'), text);
+  function saveNotice() {
+    db.ref('settings/notice').set(document.getElementById('notice-input').value.trim());
     showToast('Notice save হয়েছে! ✅');
-  };
+  }
 
-  window.clearNotice = async function() {
-    await set(ref(db, 'settings/notice'), '');
+  function clearNotice() {
+    db.ref('settings/notice').set('');
     document.getElementById('notice-input').value = '';
     showToast('Notice clear হয়েছে!', 'info');
-  };
+  }
 
   // SLIDER
   function loadSlider() {
-    onValue(ref(db, 'settings/slider'), (snap) => {
+    db.ref('settings/slider').on('value', (snap) => {
       const val = snap.val() || {};
       for (let i = 1; i <= 4; i++) {
         document.getElementById('slide-' + i).value = val['slide' + i] || '';
@@ -831,80 +824,18 @@
     });
   }
 
-  window.saveSlider = async function() {
+  function saveSlider() {
     const data = {};
     for (let i = 1; i <= 4; i++) {
       data['slide' + i] = document.getElementById('slide-' + i).value.trim();
     }
-    await set(ref(db, 'settings/slider'), data);
+    db.ref('settings/slider').set(data);
     showToast('Slider save হয়েছে! ✅');
-  };
-
-  // PRODUCTS
-  let currentAdminProduct = null;
-
-  window.loadProductAdmin = function(productId) {
-    if (!productId) return;
-    currentAdminProduct = productId;
-    document.getElementById('product-settings-card').style.display = 'block';
-    document.getElementById('packages-card').style.display = 'block';
-
-    onValue(ref(db, 'products/' + productId), (snap) => {
-      const p = snap.val() || {};
-      document.getElementById('prod-type').value = p.type || 'uid';
-      document.getElementById('prod-uid-hint').value = p.uidHint || '';
-      document.getElementById('prod-rules').value = p.rules || '';
-
-      // Load packages
-      const pkgs = p.packages ? Object.entries(p.packages) : [];
-      const container = document.getElementById('packages-list');
-      if (!pkgs.length) {
-        container.innerHTML = '<p style="font-size:12px;color:#888aaa;">কোনো package নেই</p>';
-        return;
-      }
-      container.innerHTML = pkgs.map(([key, pkg]) => `
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#0d0d1a;border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
-          <div>
-            <div style="font-weight:700;font-size:14px;color:#fff;">${pkg.name}</div>
-            <div style="font-size:12px;color:#e63946;font-weight:700;">৳${pkg.price}</div>
-          </div>
-          <button onclick="deletePackage('${key}')" style="background:#c0202e;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">🗑️</button>
-        </div>
-      `).join('');
-    }, { onlyOnce: false });
-  };
-
-  window.saveProductSettings = async function() {
-    if (!currentAdminProduct) return;
-    await set(ref(db, 'products/' + currentAdminProduct + '/type'), document.getElementById('prod-type').value);
-    await set(ref(db, 'products/' + currentAdminProduct + '/uidHint'), document.getElementById('prod-uid-hint').value.trim());
-    await set(ref(db, 'products/' + currentAdminProduct + '/rules'), document.getElementById('prod-rules').value.trim());
-    await set(ref(db, 'products/' + currentAdminProduct + '/name'), document.getElementById('selected-product').options[document.getElementById('selected-product').selectedIndex].text);
-    showToast('Settings save হয়েছে! ✅');
-  };
-
-  window.addPackage = async function() {
-    if (!currentAdminProduct) return;
-    const name = document.getElementById('new-pkg-name').value.trim();
-    const price = parseInt(document.getElementById('new-pkg-price').value);
-    if (!name || !price) { showToast('নাম ও দাম দিন!', 'error'); return; }
-    const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    await fbPush(ref(db, 'products/' + currentAdminProduct + '/packages'), { name, price });
-    document.getElementById('new-pkg-name').value = '';
-    document.getElementById('new-pkg-price').value = '';
-    showToast('Package add হয়েছে! ✅');
-  };
-
-  window.deletePackage = async function(key) {
-    if (!currentAdminProduct) return;
-    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    await remove(ref(db, 'products/' + currentAdminProduct + '/packages/' + key));
-    showToast('Package delete হয়েছে!', 'info');
-  };
+  }
 
   // LOGOS
   function loadLogos() {
-    onValue(ref(db, 'settings/payment_logos'), (snap) => {
+    db.ref('settings/payment_logos').on('value', (snap) => {
       const logos = snap.val() || {};
       ['bkash','nagad','rocket','upay'].forEach(m => {
         const el = document.getElementById('logo-' + m + '-url');
@@ -913,10 +844,21 @@
     });
   }
 
-  // PRODUCT MANAGEMENT
+  function saveLogos() {
+    const data = {
+      bkash: document.getElementById('logo-bkash-url').value.trim(),
+      nagad: document.getElementById('logo-nagad-url').value.trim(),
+      rocket: document.getElementById('logo-rocket-url').value.trim(),
+      upay: document.getElementById('logo-upay-url').value.trim(),
+    };
+    db.ref('settings/payment_logos').set(data);
+    showToast('Logo save হয়েছে! ✅');
+  }
+
+  // PRODUCTS
   let currentAdminProduct = 'uid_bd';
 
-  window.selectAdminProduct = function(key, btn) {
+  function selectAdminProduct(key, btn) {
     currentAdminProduct = key;
     document.querySelectorAll('.product-select-btn').forEach(b => {
       b.style.borderColor = '#2a2a4a';
@@ -928,26 +870,26 @@
     btn.style.color = '#1a1a2e';
     loadProductOptions(key);
     loadProductRules(key);
-  };
+  }
 
   function loadProductOptions(key) {
-    onValue(ref(db, 'products/' + key + '/options'), (snap) => {
+    db.ref('products/' + key + '/options').on('value', (snap) => {
       const opts = snap.val() || {};
       const container = document.getElementById('options-list-admin');
       const list = Object.entries(opts);
       if (!list.length) {
-        container.innerHTML = '<p style="font-size:12px;color:#888aaa;margin-bottom:8px;">কোনো option নেই। নিচে add করুন।</p>';
+        container.innerHTML = '<p style="font-size:12px;color:#888aaa;margin-bottom:8px;">কোনো option নেই।</p>';
         return;
       }
       container.innerHTML = list.map(([k, o]) => `
         <div style="background:#0d0d1a;border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
               <div style="font-weight:700;font-size:13px;color:#fff;">${o.name}</div>
               <div style="font-size:12px;color:#f4a261;font-weight:700;">${o.price} TK</div>
             </div>
             <div style="display:flex;gap:6px;">
-              <button onclick="editProductOption('${k}','${o.name}',${o.price})" style="background:#2a5298;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">✏️</button>
+              <button onclick="editProductOption('${k}','${o.name.replace(/'/g,"\'")}',${o.price})" style="background:#2a5298;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">✏️</button>
               <button onclick="deleteProductOption('${k}')" style="background:#c0202e;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">🗑️</button>
             </div>
           </div>
@@ -957,80 +899,66 @@
   }
 
   function loadProductRules(key) {
-    onValue(ref(db, 'products/' + key + '/rules'), (snap) => {
+    db.ref('products/' + key + '/rules').on('value', (snap) => {
       const el = document.getElementById('product-rules-admin');
       if (el) el.value = snap.val() || '';
     });
   }
 
-  window.addProductOption = async function() {
+  let _editingKey = null;
+
+  function editProductOption(key, name, price) {
+    document.getElementById('new-opt-name').value = name;
+    document.getElementById('new-opt-price').value = price;
+    _editingKey = key;
+    showToast('Edit করে Save করুন', 'info');
+  }
+
+  function deleteProductOption(key) {
+    db.ref('products/' + currentAdminProduct + '/options/' + key).remove();
+    showToast('Deleted!', 'info');
+  }
+
+  function addProductOption() {
     const name = document.getElementById('new-opt-name').value.trim();
     const price = parseInt(document.getElementById('new-opt-price').value) || 0;
     if (!name || !price) { showToast('নাম ও দাম দিন!', 'error'); return; }
-
-    if (window._editingKey) {
-      // Update existing
-      await set(ref(db, 'products/' + currentAdminProduct + '/options/' + window._editingKey), { name, price });
-      window._editingKey = null;
-      showToast('Option update হয়েছে! ✅');
+    if (_editingKey) {
+      db.ref('products/' + currentAdminProduct + '/options/' + _editingKey).set({ name, price });
+      _editingKey = null;
+      showToast('Update হয়েছে! ✅');
     } else {
-      // Add new
-      const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-      await fbPush(ref(db, 'products/' + currentAdminProduct + '/options'), { name, price });
-      showToast('Option add হয়েছে! ✅');
+      db.ref('products/' + currentAdminProduct + '/options').push({ name, price });
+      showToast('Add হয়েছে! ✅');
     }
     document.getElementById('new-opt-name').value = '';
     document.getElementById('new-opt-price').value = '';
-  };
+  }
 
-  window.editProductOption = function(key, name, price) {
-    document.getElementById('new-opt-name').value = name;
-    document.getElementById('new-opt-price').value = price;
-    window._editingKey = key;
-    showToast('উপরে edit করে Save করুন', 'info');
-  };
-
-  window.deleteProductOption = async function(key) {
-    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    await remove(ref(db, 'products/' + currentAdminProduct + '/options/' + key));
-    showToast('Deleted!', 'info');
-  };
-
-  window.saveProductRules = async function() {
+  function saveProductRules() {
     const rules = document.getElementById('product-rules-admin').value.trim();
-    await set(ref(db, 'products/' + currentAdminProduct + '/rules'), rules);
+    db.ref('products/' + currentAdminProduct + '/rules').set(rules);
     showToast('Rules save হয়েছে! ✅');
-  };
-
-  // Load initial product
-  loadProductOptions('uid_bd');
-  loadProductRules('uid_bd');
-
-  window.saveLogos = async function() {
-    const data = {
-      bkash: document.getElementById('logo-bkash-url').value.trim(),
-      nagad: document.getElementById('logo-nagad-url').value.trim(),
-      rocket: document.getElementById('logo-rocket-url').value.trim(),
-      upay: document.getElementById('logo-upay-url').value.trim(),
-    };
-    await set(ref(db, 'settings/payment_logos'), data);
-    showToast('Logo save হয়েছে! ✅');
-  };
+  }
 
   // REFER SETTINGS
   function loadReferSettings() {
-    onValue(ref(db, 'settings/refer'), (snap) => {
+    db.ref('settings/refer').on('value', (snap) => {
       const s = snap.val() || {};
-      document.getElementById('refer-site-link').value = s.siteLink || '';
-      document.getElementById('refer-diamond-per-ref').value = s.diamondPerRef || 50;
-      document.getElementById('refer-rule-text-admin').value = s.ruleText || '';
-      document.getElementById('refer-purchase-rule-admin').value = s.purchaseRule || '';
+      const el1 = document.getElementById('refer-site-link');
+      const el2 = document.getElementById('refer-diamond-per-ref');
+      const el3 = document.getElementById('refer-rule-text-admin');
+      const el4 = document.getElementById('refer-purchase-rule-admin');
+      if(el1) el1.value = s.siteLink || '';
+      if(el2) el2.value = s.diamondPerRef || 50;
+      if(el3) el3.value = s.ruleText || '';
+      if(el4) el4.value = s.purchaseRule || '';
     });
 
-    // Redeem options
-    onValue(ref(db, 'settings/redeem_options'), (snap) => {
+    db.ref('settings/redeem_options').on('value', (snap) => {
       const opts = snap.val() || {};
       const container = document.getElementById('redeem-options-admin');
+      if (!container) return;
       const list = Object.entries(opts);
       if (!list.length) { container.innerHTML = '<p style="font-size:12px;color:#888aaa;">কোনো option নেই</p>'; return; }
       container.innerHTML = list.map(([key, opt]) => `
@@ -1044,67 +972,59 @@
       `).join('');
     });
 
-    // Redeem requests
-    onValue(ref(db, 'redeem_requests'), (snap) => {
+    db.ref('redeem_requests').on('value', (snap) => {
       const reqs = snap.val() || {};
       const list = Object.entries(reqs).reverse();
       const container = document.getElementById('redeem-requests-list');
-      if (!list.length) { container.innerHTML = '<div style="text-align:center;padding:20px;color:#888aaa;font-size:13px;">কোনো request নেই</div>'; return; }
+      if (!container) return;
+      if (!list.length) { container.innerHTML = '<div style="text-align:center;padding:20px;color:#888aaa;">কোনো request নেই</div>'; return; }
       container.innerHTML = list.map(([key, r]) => `
         <div style="background:#0d0d1a;border:1px solid #2a2a4a;border-radius:10px;padding:12px;margin-bottom:10px;">
-          <div style="font-weight:700;color:#fff;font-size:14px;">${r.name || 'User'}</div>
-          <div style="font-size:12px;color:#a0a0c0;margin:4px 0;">📦 ${r.item} — 💎 ${r.diamonds}</div>
-          <div style="font-size:11px;color:#666;">${new Date(r.createdAt).toLocaleString('bn-BD')}</div>
-          <span style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${r.status==='pending'?'rgba(244,162,97,0.2)':'rgba(46,204,113,0.2)'};color:${r.status==='pending'?'#f4a261':'#2ecc71'};">${r.status==='pending'?'⏳ Pending':'✅ Done'}</span>
+          <div style="font-weight:700;color:#fff;">${r.name || 'User'}</div>
+          <div style="font-size:12px;color:#a0a0c0;">📦 ${r.item} — 💎 ${r.diamonds}</div>
+          <span style="font-size:11px;color:#f4a261;">${r.status}</span>
         </div>
       `).join('');
     });
   }
 
-  window.saveReferSettings = async function() {
-    await set(ref(db, 'settings/refer'), {
+  function saveReferSettings() {
+    db.ref('settings/refer').set({
       siteLink: document.getElementById('refer-site-link').value.trim(),
       diamondPerRef: parseInt(document.getElementById('refer-diamond-per-ref').value) || 50,
       ruleText: document.getElementById('refer-rule-text-admin').value.trim(),
       purchaseRule: document.getElementById('refer-purchase-rule-admin').value.trim(),
     });
     showToast('Refer settings save হয়েছে! ✅');
-  };
+  }
 
-  window.addRedeemOption = async function() {
+  function addRedeemOption() {
     const name = document.getElementById('new-redeem-name').value.trim();
     const diamonds = parseInt(document.getElementById('new-redeem-diamonds').value) || 0;
     if (!name || !diamonds) { showToast('নাম ও diamond দিন!', 'error'); return; }
-    const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    await fbPush(ref(db, 'settings/redeem_options'), { name, diamonds });
+    db.ref('settings/redeem_options').push({ name, diamonds });
     document.getElementById('new-redeem-name').value = '';
     document.getElementById('new-redeem-diamonds').value = '';
     showToast('Option add হয়েছে! ✅');
-  };
+  }
 
-  window.deleteRedeemOption = async function(key) {
-    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
-    await remove(ref(db, 'settings/redeem_options/' + key));
-    showToast('Option delete হয়েছে!', 'info');
-  };
+  function deleteRedeemOption(key) {
+    db.ref('settings/redeem_options/' + key).remove();
+    showToast('Deleted!', 'info');
+  }
 
   // USERS
   function loadUsers() {
-    onValue(ref(db, 'users'), (snap) => {
+    db.ref('users').on('value', (snap) => {
       const users = snap.val() || {};
       const list = Object.values(users);
-      const total = list.length;
-      const googleCount = list.filter(u => u.loginMethod === 'google').length;
-
-      document.getElementById('total-users').textContent = total;
-      document.getElementById('google-users').textContent = googleCount;
-
+      document.getElementById('total-users').textContent = list.length;
+      document.getElementById('google-users').textContent = list.filter(u => u.loginMethod === 'google').length;
       const container = document.getElementById('users-list');
-      if (total === 0) {
+      if (!list.length) {
         container.innerHTML = '<div class="empty-state"><div class="emoji">👤</div>এখনো কোনো user নেই</div>';
         return;
       }
-
       container.innerHTML = list.map(u => `
         <div class="user-card">
           <div class="user-name">${u.name || 'নাম নেই'}</div>
@@ -1122,12 +1042,12 @@
   }
 
   // TABS
-  window.switchTab = function(name) {
+  function switchTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
-  };
+  }
 
   // TOAST
   function showToast(msg, type = 'success') {
