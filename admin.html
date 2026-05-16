@@ -559,90 +559,37 @@
       <!-- Product selector -->
       <div class="card">
         <div class="card-title"><div class="icon">🎮</div>Product নির্বাচন করুন</div>
-        <select id="selected-product" class="input-field" onchange="loadProductAdmin(this.value)" style="cursor:pointer;">
-          <option value="">-- Product select করুন --</option>
-          <option value="ff_bd">Free Fire UID Topup [BD Server]</option>
-          <option value="unipin">UNIPIN VOUCHER (BDT)</option>
-          <option value="weekly_lite">Weekly Lite [BD Server]</option>
-          <option value="weekly_monthly">Weekly & Monthly [Offer]</option>
-          <option value="evo_access">Uid Evo Access</option>
-          <option value="level_up">Level Up Pass</option>
-          <option value="ff_id">Free Fire UID Topup [Indonesia]</option>
+        <select id="selected-product" class="input-field" onchange="selectAdminProduct(this.value)" style="cursor:pointer;">
+          <option value="uid_bd">🔥 Free Fire Uid Topup [BD SERVER]</option>
+          <option value="unipin">💎 UNIPIN VOUCHER (BDT)</option>
+          <option value="weekly_lite">💎 Weekly Lite [BD Server]</option>
+          <option value="weekly_monthly">💎 Weekly & Monthly [Offer]</option>
+          <option value="level_up">🎯 Level Up Pass</option>
+          <option value="evo_access">⚡ Uid Evo Access</option>
+          <option value="indonesia">🇮🇩 Free Fire Uid Topup [Indonesia]</option>
         </select>
       </div>
 
-      <!-- Product settings -->
-      <div class="card" id="product-settings-card" style="display:none;">
-        <div class="card-title"><div class="icon">⚙️</div>Product Settings</div>
-
-        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Type</label>
-        <select id="prod-type" class="input-field">
-          <option value="uid">UID Topup (Player ID লাগবে)</option>
-          <option value="voucher">Voucher/Code (UID লাগবে না)</option>
-        </select>
-
-        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">UID Hint Text</label>
-        <input class="input-field" id="prod-uid-hint" placeholder="যেমন: আপনার Free Fire UID দিন">
-
-        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Rules & Conditions</label>
-        <textarea id="prod-rules" style="width:100%;padding:10px;background:#0d0d1a;border:2px solid #2a2a4a;border-radius:10px;color:#e0e0f0;font-size:13px;font-family:'Hind Siliguri',sans-serif;resize:none;height:100px;outline:none;" placeholder="নিয়ম ও শর্তাবলী লিখুন..."></textarea>
-
-        <button class="btn-save" onclick="saveProductSettings()">✅ Settings Save</button>
-      </div>
-
-      <!-- Packages -->
-      <div class="card" id="packages-card" style="display:none;">
-        <div class="card-title"><div class="icon">📦</div>Packages</div>
-        <div id="packages-list" style="margin-bottom:12px;"></div>
-
-        <div style="display:flex;gap:8px;">
-          <input class="input-field" style="margin:0;flex:1;" id="new-pkg-name" placeholder="Package নাম (যেমন: 50 Diamond)">
-          <input class="input-field" style="margin:0;width:90px;" id="new-pkg-price" type="number" placeholder="৳ দাম">
-        </div>
-        <button class="btn-save" style="margin-top:10px;" onclick="addPackage()">➕ Package Add</button>
-      </div>
-    </div>
-
-    <!-- PRODUCTS TAB -->
-    <div class="tab-content" id="tab-products">
-
-      <!-- Product Selector -->
+      <!-- Package List -->
       <div class="card">
-        <div class="card-title"><div class="icon">🎮</div>Product নির্বাচন করুন</div>
-        <div style="display:flex;flex-direction:column;gap:8px;" id="product-selector">
-          <button class="product-select-btn active-product" onclick="selectAdminProduct('uid_bd', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #e63946;background:rgba(230,57,70,0.05);font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#1a1a2e;">🔥 Free Fire Uid Topup [BD SERVER]</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('unipin', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 UNIPIN VOUCHER (BDT)</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('weekly_lite', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 Weekly Lite [BD Server]</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('weekly_monthly', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 Weekly & Monthly [Offer]</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('level_up', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">🎯 Level Up Pass</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('evo_access', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">⚡ Uid Evo Access</button>
-          <button class="product-select-btn" onclick="selectAdminProduct('indonesia', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">🇮🇩 Free Fire Uid Topup [Indonesia]</button>
+        <div class="card-title"><div class="icon">📋</div>Package List (Raw)</div>
+        <p style="font-size:12px;color:#888aaa;margin-bottom:12px;">Package এর নাম ও দাম দাও — website এ row হিসেবে দেখাবে</p>
+        <div id="options-list-admin" style="margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;">
+          <input class="input-field" style="margin:0;flex:1;" id="new-opt-name" placeholder="নাম (যেমন: 1850 Diamond)">
+          <input class="input-field" style="margin:0;width:80px;" id="new-opt-price" type="number" placeholder="TK">
         </div>
+        <button class="btn-save" style="margin-top:10px;width:100%;" onclick="addProductOption()">➕ Add / Save Package</button>
       </div>
 
-      <!-- Options Management -->
-      <div class="card" id="product-options-card">
-        <div class="card-title"><div class="icon">📋</div>Options & Price</div>
-        <p style="font-size:12px;color:#888aaa;margin-bottom:12px;">Option নাম ও দাম দাও — user এখান থেকে select করবে</p>
-        <div id="options-list-admin"></div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <input class="input-field" style="margin:0;flex:1;" id="new-opt-name" placeholder="Option নাম (যেমন: 1850 Diamond)">
-          <input class="input-field" style="margin:0;width:90px;" id="new-opt-price" type="number" placeholder="TK">
-        </div>
-        <button class="btn-save" style="margin-top:10px;" onclick="addProductOption()" id="add-opt-btn">➕ Add / Save Option</button>
-      </div>
-
-      <!-- Rules Management -->
+      <!-- Rules -->
       <div class="card">
         <div class="card-title"><div class="icon">📜</div>Rules & Conditions</div>
-        <textarea id="product-rules-admin" placeholder="এই product এর rules লিখুন..." style="min-height:100px;"></textarea>
-        <br>
-        <button class="btn-save" onclick="saveProductRules()">✅ Save Rules</button>
+        <textarea id="product-rules-admin" placeholder="এই product এর rules লিখুন..." style="width:100%;padding:12px;background:#0d0d1a;border:2px solid #2a2a4a;border-radius:10px;color:#e0e0f0;font-size:13px;min-height:100px;font-family:'Hind Siliguri',sans-serif;outline:none;resize:vertical;"></textarea>
+        <br><button class="btn-save" onclick="saveProductRules()">✅ Save Rules</button>
       </div>
 
-    </div>
-
-    <!-- LOGOS TAB -->
+      <!-- LOGOS TAB -->
     <div class="tab-content" id="tab-logos">
       <div class="card">
         <div class="card-title">
@@ -858,16 +805,8 @@
   // PRODUCTS
   let currentAdminProduct = 'uid_bd';
 
-  function selectAdminProduct(key, btn) {
+  function selectAdminProduct(key) {
     currentAdminProduct = key;
-    document.querySelectorAll('.product-select-btn').forEach(b => {
-      b.style.borderColor = '#2a2a4a';
-      b.style.background = 'transparent';
-      b.style.color = '#a0a0c0';
-    });
-    btn.style.borderColor = '#e63946';
-    btn.style.background = 'rgba(230,57,70,0.05)';
-    btn.style.color = '#1a1a2e';
     loadProductOptions(key);
     loadProductRules(key);
   }
