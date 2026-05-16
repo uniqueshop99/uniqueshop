@@ -498,6 +498,7 @@
   <div class="tabs">
     <div class="tab active" onclick="switchTab('notice')">📢 Notice</div>
     <div class="tab" onclick="switchTab('slider')">🖼️ Slider</div>
+    <div class="tab" onclick="switchTab('products')">🎮 Products</div>
     <div class="tab" onclick="switchTab('logos')">💳 Logos</div>
     <div class="tab" onclick="switchTab('refer')">🎁 Refer</div>
     <div class="tab" onclick="switchTab('users')">👥 Users</div>
@@ -550,6 +551,95 @@
         <br>
         <button class="btn-save" onclick="saveSlider()">✅ Save করো</button>
       </div>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div class="tab-content" id="tab-products">
+
+      <!-- Product selector -->
+      <div class="card">
+        <div class="card-title"><div class="icon">🎮</div>Product নির্বাচন করুন</div>
+        <select id="selected-product" class="input-field" onchange="loadProductAdmin(this.value)" style="cursor:pointer;">
+          <option value="">-- Product select করুন --</option>
+          <option value="ff_bd">Free Fire UID Topup [BD Server]</option>
+          <option value="unipin">UNIPIN VOUCHER (BDT)</option>
+          <option value="weekly_lite">Weekly Lite [BD Server]</option>
+          <option value="weekly_monthly">Weekly & Monthly [Offer]</option>
+          <option value="evo_access">Uid Evo Access</option>
+          <option value="level_up">Level Up Pass</option>
+          <option value="ff_id">Free Fire UID Topup [Indonesia]</option>
+        </select>
+      </div>
+
+      <!-- Product settings -->
+      <div class="card" id="product-settings-card" style="display:none;">
+        <div class="card-title"><div class="icon">⚙️</div>Product Settings</div>
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Type</label>
+        <select id="prod-type" class="input-field">
+          <option value="uid">UID Topup (Player ID লাগবে)</option>
+          <option value="voucher">Voucher/Code (UID লাগবে না)</option>
+        </select>
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">UID Hint Text</label>
+        <input class="input-field" id="prod-uid-hint" placeholder="যেমন: আপনার Free Fire UID দিন">
+
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Rules & Conditions</label>
+        <textarea id="prod-rules" style="width:100%;padding:10px;background:#0d0d1a;border:2px solid #2a2a4a;border-radius:10px;color:#e0e0f0;font-size:13px;font-family:'Hind Siliguri',sans-serif;resize:none;height:100px;outline:none;" placeholder="নিয়ম ও শর্তাবলী লিখুন..."></textarea>
+
+        <button class="btn-save" onclick="saveProductSettings()">✅ Settings Save</button>
+      </div>
+
+      <!-- Packages -->
+      <div class="card" id="packages-card" style="display:none;">
+        <div class="card-title"><div class="icon">📦</div>Packages</div>
+        <div id="packages-list" style="margin-bottom:12px;"></div>
+
+        <div style="display:flex;gap:8px;">
+          <input class="input-field" style="margin:0;flex:1;" id="new-pkg-name" placeholder="Package নাম (যেমন: 50 Diamond)">
+          <input class="input-field" style="margin:0;width:90px;" id="new-pkg-price" type="number" placeholder="৳ দাম">
+        </div>
+        <button class="btn-save" style="margin-top:10px;" onclick="addPackage()">➕ Package Add</button>
+      </div>
+    </div>
+
+    <!-- PRODUCTS TAB -->
+    <div class="tab-content" id="tab-products">
+
+      <!-- Product Selector -->
+      <div class="card">
+        <div class="card-title"><div class="icon">🎮</div>Product নির্বাচন করুন</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="product-selector">
+          <button class="product-select-btn active-product" onclick="selectAdminProduct('uid_bd', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #e63946;background:rgba(230,57,70,0.05);font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#1a1a2e;">🔥 Free Fire Uid Topup [BD SERVER]</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('unipin', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 UNIPIN VOUCHER (BDT)</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('weekly_lite', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 Weekly Lite [BD Server]</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('weekly_monthly', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">💎 Weekly & Monthly [Offer]</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('level_up', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">🎯 Level Up Pass</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('evo_access', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">⚡ Uid Evo Access</button>
+          <button class="product-select-btn" onclick="selectAdminProduct('indonesia', this)" style="text-align:left;padding:12px 14px;border-radius:10px;border:2px solid #2a2a4a;background:transparent;font-family:'Hind Siliguri',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#a0a0c0;">🇮🇩 Free Fire Uid Topup [Indonesia]</button>
+        </div>
+      </div>
+
+      <!-- Options Management -->
+      <div class="card" id="product-options-card">
+        <div class="card-title"><div class="icon">📋</div>Options & Price</div>
+        <p style="font-size:12px;color:#888aaa;margin-bottom:12px;">Option নাম ও দাম দাও — user এখান থেকে select করবে</p>
+        <div id="options-list-admin"></div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input class="input-field" style="margin:0;flex:1;" id="new-opt-name" placeholder="Option নাম (যেমন: 1850 Diamond)">
+          <input class="input-field" style="margin:0;width:90px;" id="new-opt-price" type="number" placeholder="TK">
+        </div>
+        <button class="btn-save" style="margin-top:10px;" onclick="addProductOption()" id="add-opt-btn">➕ Add / Save Option</button>
+      </div>
+
+      <!-- Rules Management -->
+      <div class="card">
+        <div class="card-title"><div class="icon">📜</div>Rules & Conditions</div>
+        <textarea id="product-rules-admin" placeholder="এই product এর rules লিখুন..." style="min-height:100px;"></textarea>
+        <br>
+        <button class="btn-save" onclick="saveProductRules()">✅ Save Rules</button>
+      </div>
+
     </div>
 
     <!-- LOGOS TAB -->
@@ -750,6 +840,68 @@
     showToast('Slider save হয়েছে! ✅');
   };
 
+  // PRODUCTS
+  let currentAdminProduct = null;
+
+  window.loadProductAdmin = function(productId) {
+    if (!productId) return;
+    currentAdminProduct = productId;
+    document.getElementById('product-settings-card').style.display = 'block';
+    document.getElementById('packages-card').style.display = 'block';
+
+    onValue(ref(db, 'products/' + productId), (snap) => {
+      const p = snap.val() || {};
+      document.getElementById('prod-type').value = p.type || 'uid';
+      document.getElementById('prod-uid-hint').value = p.uidHint || '';
+      document.getElementById('prod-rules').value = p.rules || '';
+
+      // Load packages
+      const pkgs = p.packages ? Object.entries(p.packages) : [];
+      const container = document.getElementById('packages-list');
+      if (!pkgs.length) {
+        container.innerHTML = '<p style="font-size:12px;color:#888aaa;">কোনো package নেই</p>';
+        return;
+      }
+      container.innerHTML = pkgs.map(([key, pkg]) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#0d0d1a;border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+          <div>
+            <div style="font-weight:700;font-size:14px;color:#fff;">${pkg.name}</div>
+            <div style="font-size:12px;color:#e63946;font-weight:700;">৳${pkg.price}</div>
+          </div>
+          <button onclick="deletePackage('${key}')" style="background:#c0202e;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">🗑️</button>
+        </div>
+      `).join('');
+    }, { onlyOnce: false });
+  };
+
+  window.saveProductSettings = async function() {
+    if (!currentAdminProduct) return;
+    await set(ref(db, 'products/' + currentAdminProduct + '/type'), document.getElementById('prod-type').value);
+    await set(ref(db, 'products/' + currentAdminProduct + '/uidHint'), document.getElementById('prod-uid-hint').value.trim());
+    await set(ref(db, 'products/' + currentAdminProduct + '/rules'), document.getElementById('prod-rules').value.trim());
+    await set(ref(db, 'products/' + currentAdminProduct + '/name'), document.getElementById('selected-product').options[document.getElementById('selected-product').selectedIndex].text);
+    showToast('Settings save হয়েছে! ✅');
+  };
+
+  window.addPackage = async function() {
+    if (!currentAdminProduct) return;
+    const name = document.getElementById('new-pkg-name').value.trim();
+    const price = parseInt(document.getElementById('new-pkg-price').value);
+    if (!name || !price) { showToast('নাম ও দাম দিন!', 'error'); return; }
+    const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await fbPush(ref(db, 'products/' + currentAdminProduct + '/packages'), { name, price });
+    document.getElementById('new-pkg-name').value = '';
+    document.getElementById('new-pkg-price').value = '';
+    showToast('Package add হয়েছে! ✅');
+  };
+
+  window.deletePackage = async function(key) {
+    if (!currentAdminProduct) return;
+    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await remove(ref(db, 'products/' + currentAdminProduct + '/packages/' + key));
+    showToast('Package delete হয়েছে!', 'info');
+  };
+
   // LOGOS
   function loadLogos() {
     onValue(ref(db, 'settings/payment_logos'), (snap) => {
@@ -760,6 +912,99 @@
       });
     });
   }
+
+  // PRODUCT MANAGEMENT
+  let currentAdminProduct = 'uid_bd';
+
+  window.selectAdminProduct = function(key, btn) {
+    currentAdminProduct = key;
+    document.querySelectorAll('.product-select-btn').forEach(b => {
+      b.style.borderColor = '#2a2a4a';
+      b.style.background = 'transparent';
+      b.style.color = '#a0a0c0';
+    });
+    btn.style.borderColor = '#e63946';
+    btn.style.background = 'rgba(230,57,70,0.05)';
+    btn.style.color = '#1a1a2e';
+    loadProductOptions(key);
+    loadProductRules(key);
+  };
+
+  function loadProductOptions(key) {
+    onValue(ref(db, 'products/' + key + '/options'), (snap) => {
+      const opts = snap.val() || {};
+      const container = document.getElementById('options-list-admin');
+      const list = Object.entries(opts);
+      if (!list.length) {
+        container.innerHTML = '<p style="font-size:12px;color:#888aaa;margin-bottom:8px;">কোনো option নেই। নিচে add করুন।</p>';
+        return;
+      }
+      container.innerHTML = list.map(([k, o]) => `
+        <div style="background:#0d0d1a;border:1px solid #2a2a4a;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div>
+              <div style="font-weight:700;font-size:13px;color:#fff;">${o.name}</div>
+              <div style="font-size:12px;color:#f4a261;font-weight:700;">${o.price} TK</div>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button onclick="editProductOption('${k}','${o.name}',${o.price})" style="background:#2a5298;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">✏️</button>
+              <button onclick="deleteProductOption('${k}')" style="background:#c0202e;color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    });
+  }
+
+  function loadProductRules(key) {
+    onValue(ref(db, 'products/' + key + '/rules'), (snap) => {
+      const el = document.getElementById('product-rules-admin');
+      if (el) el.value = snap.val() || '';
+    });
+  }
+
+  window.addProductOption = async function() {
+    const name = document.getElementById('new-opt-name').value.trim();
+    const price = parseInt(document.getElementById('new-opt-price').value) || 0;
+    if (!name || !price) { showToast('নাম ও দাম দিন!', 'error'); return; }
+
+    if (window._editingKey) {
+      // Update existing
+      await set(ref(db, 'products/' + currentAdminProduct + '/options/' + window._editingKey), { name, price });
+      window._editingKey = null;
+      showToast('Option update হয়েছে! ✅');
+    } else {
+      // Add new
+      const { push: fbPush } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+      await fbPush(ref(db, 'products/' + currentAdminProduct + '/options'), { name, price });
+      showToast('Option add হয়েছে! ✅');
+    }
+    document.getElementById('new-opt-name').value = '';
+    document.getElementById('new-opt-price').value = '';
+  };
+
+  window.editProductOption = function(key, name, price) {
+    document.getElementById('new-opt-name').value = name;
+    document.getElementById('new-opt-price').value = price;
+    window._editingKey = key;
+    showToast('উপরে edit করে Save করুন', 'info');
+  };
+
+  window.deleteProductOption = async function(key) {
+    const { remove } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+    await remove(ref(db, 'products/' + currentAdminProduct + '/options/' + key));
+    showToast('Deleted!', 'info');
+  };
+
+  window.saveProductRules = async function() {
+    const rules = document.getElementById('product-rules-admin').value.trim();
+    await set(ref(db, 'products/' + currentAdminProduct + '/rules'), rules);
+    showToast('Rules save হয়েছে! ✅');
+  };
+
+  // Load initial product
+  loadProductOptions('uid_bd');
+  loadProductRules('uid_bd');
 
   window.saveLogos = async function() {
     const data = {
