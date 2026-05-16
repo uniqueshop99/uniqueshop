@@ -3464,9 +3464,7 @@
 <!-- Fixed Order Button -->
 <button class="btn-order" id="order-btn" onclick="placeOrder()">Order করুন</button>
 
-<script>
-var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite", 45], ["2 Monthly", 1580], ["Monthly", 790], ["2 Weekly", 316], ["Weekly", 158], ["10120 Diamond", 6440], ["5060 Diamond", 3220], ["2530 Diamond", 1610], ["25 Diamond", 22], ["1240 Diamond", 800], ["850 Diamond", 558], ["610 Diamond", 400], ["355 Diamond", 237], ["240 Diamond", 158], ["115 Diamond", 79], ["50 Diamond", 38]], "unipin": [["25 Diamond Code", 22], ["50 Diamond Code", 38], ["115 Diamond Code", 79], ["240 Diamond Code", 158], ["610 Diamond Code", 400], ["1240 Diamond Code", 800], ["2530 Diamond Code", 1610], ["Weekly Code", 158], ["Monthly Code", 790]], "weekly_lite": [["Weekly Lite 1 Pc", 45], ["Weekly Lite 2 Pc", 90], ["Weekly Lite 3 Pc", 135], ["Weekly Lite 5 Pc", 225], ["Weekly Lite 10 Pc", 450]], "weekly_monthly": [["Weekly", 158], ["Monthly", 790], ["2x Weekly", 316], ["5x Weekly", 790], ["2X Monthly", 1580], ["4Weekly 1Monthly", 1422], ["5X Monthly", 3950], ["10XWeekly 5Monthly", 5530]], "level_up": [["6 level (120 Diamond)", 43], ["10 level (200 Diamond)", 75], ["15 level (200 Diamond)", 75], ["20 level (200 Diamond)", 75], ["25 level (200 Diamond)", 75], ["30 level (350 Diamond)", 105], ["Level Up Pass Full (1270 Diamond)", 448]], "evo_access": [["Evo Access 1 Month", 350], ["Evo Access 3 Month", 950], ["Evo Access 6 Month", 1800]], "indonesia": [["25 Diamond", 25], ["50 Diamond", 48], ["115 Diamond", 110], ["240 Diamond", 220], ["610 Diamond", 550], ["1240 Diamond", 1100]]};
-</script>
+
 <script>
   var currentProduct = null;
   var selectedOption = null;
@@ -3517,6 +3515,26 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
   }
 
   function openProduct(key) {
+    var PRODUCTS = {
+      uid_bd:         { name: 'Free Fire Uid Topup [BD SERVER]', hasUID: true,  uidLabel: 'Player Id' },
+      unipin:         { name: 'UNIPIN VOUCHER (BDT)',            hasUID: false },
+      weekly_lite:    { name: 'Weekly Lite [ BD Server ]',       hasUID: true,  uidLabel: 'Player Id' },
+      weekly_monthly: { name: 'Weekly & Monthly [ Offer ]',      hasUID: true,  uidLabel: 'Player Id' },
+      level_up:       { name: 'Level Up Pass',                   hasUID: true,  uidLabel: 'Player Id' },
+      evo_access:     { name: 'Uid Evo Access',                  hasUID: true,  uidLabel: 'Player Id (UID)' },
+      indonesia:      { name: 'Free Fire Uid Topup [Indonesia]', hasUID: true,  uidLabel: 'Player Id' },
+    };
+
+    var DEFAULTS = {
+      uid_bd: [['1850 Diamond',1200],['Weekly Lite',45],['2 Monthly',1580],['Monthly',790],['2 Weekly',316],['Weekly',158],['10120 Diamond',6440],['5060 Diamond',3220],['2530 Diamond',1610],['25 Diamond',22],['1240 Diamond',800],['850 Diamond',558],['610 Diamond',400],['355 Diamond',237],['240 Diamond',158],['115 Diamond',79],['50 Diamond',38]],
+      unipin: [['25 Diamond Code',22],['50 Diamond Code',38],['115 Diamond Code',79],['240 Diamond Code',158],['610 Diamond Code',400],['1240 Diamond Code',800],['2530 Diamond Code',1610],['Weekly Code',158],['Monthly Code',790]],
+      weekly_lite: [['Weekly Lite 1 Pc',45],['Weekly Lite 2 Pc',90],['Weekly Lite 3 Pc',135],['Weekly Lite 5 Pc',225],['Weekly Lite 10 Pc',450]],
+      weekly_monthly: [['Weekly',158],['Monthly',790],['2x Weekly',316],['5x Weekly',790],['2X Monthly',1580],['4Weekly 1Monthly',1422],['5X Monthly',3950],['10XWeekly 5Monthly',5530]],
+      level_up: [['6 level (120 Diamond)',43],['10 level (200 Diamond)',75],['15 level (200 Diamond)',75],['20 level (200 Diamond)',75],['25 level (200 Diamond)',75],['30 level (350 Diamond)',105],['Level Up Pass Full (1270 Diamond)',448]],
+      evo_access: [['Evo Access 1 Month',350],['Evo Access 3 Month',950],['Evo Access 6 Month',1800]],
+      indonesia: [['25 Diamond',25],['50 Diamond',48],['115 Diamond',110],['240 Diamond',220],['610 Diamond',550],['1240 Diamond',1100]],
+    };
+
     currentProduct = PRODUCTS[key];
     if (!currentProduct) return;
     currentProduct.key = key;
@@ -3544,27 +3562,54 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
       payStepNum.textContent = '2';
     }
 
-    // Always show defaults immediately
-    var defaults = DEFAULT_PRODUCT_OPTIONS[key] || [];
-    renderOptions(defaults.map(function(d) { return {name: d[0], price: d[1]}; }));
+    // Show defaults immediately
+    var defaults = DEFAULTS[key] || [];
+    var container = document.getElementById('recharge-options-container');
+    if (defaults.length) {
+      var html_str = '';
+      defaults.forEach(function(d) {
+        html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + d[1] + ')">' +
+          '<div class="ro-dot"></div>' +
+          '<div class="ro-name">' + d[0] + '</div>' +
+          '<div class="ro-price">' + d[1] + ' TK</div>' +
+          '</div>';
+      });
+      container.innerHTML = html_str;
+    } else {
+      container.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;">কোনো package নেই</div>';
+    }
 
     // Try Firebase for admin overrides
-    fetchFromDB('/products/' + key + '/options', function(data) {
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        renderOptions(Object.values(data));
-      }
-    });
+    fetch('https://topup-eb1a6-default-rtdb.firebaseio.com/products/' + key + '/options.json')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          var list = Object.values(data);
+          var html_str = '';
+          list.forEach(function(opt) {
+            html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + opt.price + ')">' +
+              '<div class="ro-dot"></div>' +
+              '<div class="ro-name">' + opt.name + '</div>' +
+              '<div class="ro-price">' + opt.price + ' TK</div>' +
+              '</div>';
+          });
+          container.innerHTML = html_str;
+        }
+      })
+      .catch(function() {});
 
     // Load rules
-    fetchFromDB('/products/' + key + '/rules', function(data) {
-      var el = document.getElementById('product-rules-text');
-      if (el && data) el.textContent = data;
-    });
+    fetch('https://topup-eb1a6-default-rtdb.firebaseio.com/products/' + key + '/rules.json')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        var el = document.getElementById('product-rules-text');
+        if (el && data) el.textContent = data;
+      })
+      .catch(function() {});
 
     document.getElementById('product-page').style.display = 'block';
     window.scrollTo(0, 0);
   }
-
   function selectRechargeOption(el, price) {
     document.querySelectorAll('.recharge-option').forEach(function(o) { o.classList.remove('selected'); });
     el.classList.add('selected');
