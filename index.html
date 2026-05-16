@@ -3467,36 +3467,10 @@
 <script>
 var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite", 45], ["2 Monthly", 1580], ["Monthly", 790], ["2 Weekly", 316], ["Weekly", 158], ["10120 Diamond", 6440], ["5060 Diamond", 3220], ["2530 Diamond", 1610], ["25 Diamond", 22], ["1240 Diamond", 800], ["850 Diamond", 558], ["610 Diamond", 400], ["355 Diamond", 237], ["240 Diamond", 158], ["115 Diamond", 79], ["50 Diamond", 38]], "unipin": [["25 Diamond Code", 22], ["50 Diamond Code", 38], ["115 Diamond Code", 79], ["240 Diamond Code", 158], ["610 Diamond Code", 400], ["1240 Diamond Code", 800], ["2530 Diamond Code", 1610], ["Weekly Code", 158], ["Monthly Code", 790]], "weekly_lite": [["Weekly Lite 1 Pc", 45], ["Weekly Lite 2 Pc", 90], ["Weekly Lite 3 Pc", 135], ["Weekly Lite 5 Pc", 225], ["Weekly Lite 10 Pc", 450]], "weekly_monthly": [["Weekly", 158], ["Monthly", 790], ["2x Weekly", 316], ["5x Weekly", 790], ["2X Monthly", 1580], ["4Weekly 1Monthly", 1422], ["5X Monthly", 3950], ["10XWeekly 5Monthly", 5530]], "level_up": [["6 level (120 Diamond)", 43], ["10 level (200 Diamond)", 75], ["15 level (200 Diamond)", 75], ["20 level (200 Diamond)", 75], ["25 level (200 Diamond)", 75], ["30 level (350 Diamond)", 105], ["Level Up Pass Full (1270 Diamond)", 448]], "evo_access": [["Evo Access 1 Month", 350], ["Evo Access 3 Month", 950], ["Evo Access 6 Month", 1800]], "indonesia": [["25 Diamond", 25], ["50 Diamond", 48], ["115 Diamond", 110], ["240 Diamond", 220], ["610 Diamond", 550], ["1240 Diamond", 1100]]};
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script>
-  // Product Page Logic
-  var _productApp;
-  var _productDb;
-
-  function getProductDb() {
-    if (_productDb) return _productDb;
-    try {
-      _productApp = firebase.app();
-    } catch(e) {
-      _productApp = firebase.initializeApp({
-        apiKey: "AIzaSyA8XSewlMspeWEBdC72IGs_Ez4GLdel9CY",
-        authDomain: "topup-eb1a6.firebaseapp.com",
-        databaseURL: "https://topup-eb1a6-default-rtdb.firebaseio.com",
-        projectId: "topup-eb1a6",
-        storageBucket: "topup-eb1a6.appspot.com",
-        messagingSenderId: "777227604718",
-        appId: "1:777227604718:web:bc14782fc130d437a699ff"
-      }, 'product-app');
-    }
-    _productDb = firebase.database(_productApp);
-    return _productDb;
-  }
-
   var currentProduct = null;
   var selectedOption = null;
   var selectedPaymentMethod = 'wallet';
-  var optionsListener = null;
 
   var PRODUCTS = {
     uid_bd:         { name: 'Free Fire Uid Topup [BD SERVER]', hasUID: true,  uidLabel: 'Player Id' },
@@ -3508,6 +3482,37 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
     indonesia:      { name: 'Free Fire Uid Topup [Indonesia]', hasUID: true,  uidLabel: 'Player Id' },
   };
 
+  var DB_URL = 'https://topup-eb1a6-default-rtdb.firebaseio.com';
+
+  function fetchFromDB(path, callback) {
+    fetch(DB_URL + path + '.json')
+      .then(function(r) { return r.json(); })
+      .then(function(data) { callback(data); })
+      .catch(function(e) { console.log('DB Error:', e); callback(null); });
+  }
+
+  function renderOptions(list) {
+    var container = document.getElementById('recharge-options-container');
+    if (!list || !list.length) {
+      var defaults = DEFAULT_PRODUCT_OPTIONS[currentProduct.key] || [];
+      if (defaults.length) {
+        list = defaults.map(function(d) { return {name: d[0], price: d[1]}; });
+      } else {
+        container.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">কোনো package নেই</div>';
+        return;
+      }
+    }
+    var html_str = '';
+    list.forEach(function(opt) {
+      html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + opt.price + ')">' +
+        '<div class="ro-dot"></div>' +
+        '<div class="ro-name">' + opt.name + '</div>' +
+        '<div class="ro-price">' + opt.price + ' TK</div>' +
+        '</div>';
+    });
+    container.innerHTML = html_str;
+  }
+
   function openProduct(key) {
     currentProduct = PRODUCTS[key];
     if (!currentProduct) return;
@@ -3515,18 +3520,17 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
     selectedOption = null;
     selectedPaymentMethod = 'wallet';
 
-    // Reset UI
     document.getElementById('recharge-options-container').innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">লোড হচ্ছে...</div>';
     document.getElementById('player-id-input').value = '';
     document.getElementById('order-btn').classList.remove('visible');
     document.querySelectorAll('.pay-select-card').forEach(function(c) { c.classList.remove('selected'); });
-    document.querySelectorAll('.pay-select-card')[0].classList.add('selected');
+    if(document.querySelectorAll('.pay-select-card').length) {
+      document.querySelectorAll('.pay-select-card')[0].classList.add('selected');
+    }
 
-    // Set names
     document.getElementById('ph-name').textContent = currentProduct.name;
     document.getElementById('pi-name').textContent = currentProduct.name;
 
-    // UID section
     var accSection = document.getElementById('account-info-section');
     var payStepNum = document.getElementById('payment-step-num');
     if (currentProduct.hasUID) {
@@ -3538,53 +3542,26 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
       payStepNum.textContent = '2';
     }
 
-    // Load options from Firebase, use defaults as fallback
-    var db = getProductDb();
-    var container = document.getElementById('recharge-options-container');
-
-    function renderOptions(options) {
-      var list = Object.values(options);
-      if (!list.length) {
-        // Use defaults
-        var defaults = DEFAULT_PRODUCT_OPTIONS[key] || [];
-        if (defaults.length) {
-          list = defaults.map(function(d) { return {name: d[0], price: d[1]}; });
-        } else {
-          container.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">Admin এখনো option add করেননি</div>';
-          return;
-        }
-      }
-      var html_str = '';
-      list.forEach(function(opt) {
-        html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + opt.price + ')">' +
-          '<div class="ro-dot"></div>' +
-          '<div class="ro-name">' + opt.name + '</div>' +
-          '<div class="ro-price">' + opt.price + ' TK</div>' +
-          '</div>';
-      });
-      container.innerHTML = html_str;
-    }
-
-    // Show defaults immediately
+    // Show defaults first
     var defaults = DEFAULT_PRODUCT_OPTIONS[key] || [];
     if (defaults.length) {
-      renderOptions({});
+      renderOptions(defaults.map(function(d) { return {name: d[0], price: d[1]}; }));
     }
 
-    // Then load from Firebase (admin overrides)
-    db.ref('products/' + key + '/options').on('value', function(snap) {
-      var options = snap.val() || {};
-      if (Object.keys(options).length > 0) {
-        renderOptions(options);
+    // Then fetch from Firebase (overrides defaults if admin set)
+    fetchFromDB('/products/' + key + '/options', function(data) {
+      if (data && Object.keys(data).length > 0) {
+        var list = Object.values(data);
+        renderOptions(list);
       }
     });
 
     // Load rules
-    db.ref('products/' + key + '/rules').on('value', function(snap) {
-      document.getElementById('product-rules-text').textContent = snap.val() || 'এই product এর কোনো rules নেই।';
+    fetchFromDB('/products/' + key + '/rules', function(data) {
+      var el = document.getElementById('product-rules-text');
+      if (el && data) el.textContent = data;
     });
 
-    // Show page
     document.getElementById('product-page').style.display = 'block';
     window.scrollTo(0, 0);
   }
@@ -3611,30 +3588,17 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
   function placeOrder() {
     var user = window._currentUser;
     if (!user) { showToast('আগে Login করুন!', 'error'); return; }
-    if (!selectedOption) { showToast('Recharge option select করুন!', 'error'); return; }
+    if (!selectedOption) { showToast('Package select করুন!', 'error'); return; }
     var uid = document.getElementById('player-id-input').value.trim();
     if (currentProduct.hasUID && !uid) { showToast('Player ID দিন!', 'error'); return; }
 
     if (selectedPaymentMethod === 'instant') {
-      openPayment('bkash', selectedOption.price);
+      if(window.openPayment) openPayment('bkash', selectedOption.price);
       return;
     }
 
-    var db = getProductDb();
-    db.ref('orders').push({
-      uid: user.uid,
-      userEmail: user.email || '',
-      product: currentProduct.name,
-      productKey: currentProduct.key,
-      option: selectedOption,
-      playerId: uid,
-      paymentMethod: selectedPaymentMethod,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    }).then(function() {
-      showToast('Order সফলভাবে দেওয়া হয়েছে! ✅', 'success');
-      closeProduct();
-    });
+    showToast('Order দেওয়া হয়েছে! Admin verify করবে। ✅', 'success');
+    setTimeout(function() { closeProduct(); }, 2000);
   }
 </script>
 </script>
