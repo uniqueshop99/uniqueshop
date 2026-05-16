@@ -3486,9 +3486,12 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
 
   function fetchFromDB(path, callback) {
     fetch(DB_URL + path + '.json')
-      .then(function(r) { return r.json(); })
-      .then(function(data) { callback(data); })
-      .catch(function(e) { console.log('DB Error:', e); callback(null); });
+      .then(function(r) {
+        if (!r.ok) { callback(null); return; }
+        return r.json();
+      })
+      .then(function(data) { if(data !== undefined) callback(data); })
+      .catch(function() { callback(null); });
   }
 
   function renderOptions(list) {
@@ -3520,7 +3523,6 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
     selectedOption = null;
     selectedPaymentMethod = 'wallet';
 
-    document.getElementById('recharge-options-container').innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">লোড হচ্ছে...</div>';
     document.getElementById('player-id-input').value = '';
     document.getElementById('order-btn').classList.remove('visible');
     document.querySelectorAll('.pay-select-card').forEach(function(c) { c.classList.remove('selected'); });
@@ -3542,17 +3544,14 @@ var DEFAULT_PRODUCT_OPTIONS = {"uid_bd": [["1850 Diamond", 1200], ["Weekly Lite"
       payStepNum.textContent = '2';
     }
 
-    // Show defaults first
+    // Always show defaults immediately
     var defaults = DEFAULT_PRODUCT_OPTIONS[key] || [];
-    if (defaults.length) {
-      renderOptions(defaults.map(function(d) { return {name: d[0], price: d[1]}; }));
-    }
+    renderOptions(defaults.map(function(d) { return {name: d[0], price: d[1]}; }));
 
-    // Then fetch from Firebase (overrides defaults if admin set)
+    // Try Firebase for admin overrides
     fetchFromDB('/products/' + key + '/options', function(data) {
-      if (data && Object.keys(data).length > 0) {
-        var list = Object.values(data);
-        renderOptions(list);
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        renderOptions(Object.values(data));
       }
     });
 
