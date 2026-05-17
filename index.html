@@ -2772,8 +2772,10 @@
 
     // Auth state listener - update UI when user logs in/out
     window._currentUser = null;
+    window._authReady = false;
     onAuthStateChanged(auth, (user) => {
       window._currentUser = user;
+      window._authReady = true;
       if (user) {
         // User logged in
         document.getElementById('nav-login-btn').style.display = 'none';
@@ -3405,15 +3407,15 @@
   // ---- LOAD REFER DATA ----
   function loadReferData() {
     const user = window._currentUser;
-    if (user === undefined || user === null) {
-      // Auth not ready yet — wait and retry
+    if (!window._authReady) {
+      // Auth not ready yet — wait for it
       let waited = 0;
       const interval = setInterval(() => {
         waited += 100;
-        if (window._currentUser) {
+        if (window._authReady) {
           clearInterval(interval);
           loadReferData();
-        } else if (waited >= 5000) {
+        } else if (waited >= 6000) {
           clearInterval(interval);
           document.getElementById('my-refer-code').textContent = 'Login করুন';
           document.getElementById('my-refer-link').textContent = 'Login করুন';
@@ -3421,6 +3423,13 @@
           document.getElementById('refer-purchase-rule').textContent = '';
         }
       }, 100);
+      return;
+    }
+    if (!user) {
+      document.getElementById('my-refer-code').textContent = 'Login করুন';
+      document.getElementById('my-refer-link').textContent = 'Login করুন';
+      document.getElementById('refer-rule-text').textContent = '';
+      document.getElementById('refer-purchase-rule').textContent = '';
       return;
     }
 
