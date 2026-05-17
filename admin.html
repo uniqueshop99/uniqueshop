@@ -496,13 +496,13 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('notice')">📢 Notice</div>
-    <div class="tab" onclick="switchTab('settings')">⚙️ Settings</div>
-    <div class="tab" onclick="switchTab('slider')">🖼️ Slider</div>
-    <div class="tab" onclick="switchTab('products')">🎮 Products</div>
-    <div class="tab" onclick="switchTab('logos')">💳 Logos</div>
-    <div class="tab" onclick="switchTab('refer')">🎁 Refer</div>
-    <div class="tab" onclick="switchTab('users')">👥 Users</div>
+    <div class="tab active" onclick="switchTab('notice', this)">📢 Notice</div>
+    <div class="tab" onclick="switchTab('settings', this)">⚙️ Settings</div>
+    <div class="tab" onclick="switchTab('slider', this)">🖼️ Slider</div>
+    <div class="tab" onclick="switchTab('products', this)">🎮 Products</div>
+    <div class="tab" onclick="switchTab('logos', this)">💳 Logos</div>
+    <div class="tab" onclick="switchTab('refer', this)">🎁 Refer</div>
+    <div class="tab" onclick="switchTab('users', this)">👥 Users</div>
   </div>
 
   <!-- CONTENT -->
@@ -1066,10 +1066,10 @@
   }
 
   // TABS
-  function switchTab(name) {
+  function switchTab(name, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    if (el) el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
   }
 
