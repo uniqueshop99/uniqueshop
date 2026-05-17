@@ -531,6 +531,19 @@
         <button class="btn-save" onclick="saveSettings()">✅ Save করো</button>
       </div>
       <div class="card">
+        <div class="card-title"><div class="icon">💰</div>Payment Number</div>
+        <p style="font-size:12px;color:#888aaa;margin-bottom:14px;">প্রতিটি payment method এর নম্বর লিখুন — website এ copy করা যাবে।</p>
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">🩷 bKash নম্বর</label>
+        <input class="input-field" id="pay-num-bkash" placeholder="01XXXXXXXXX">
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">🧡 Nagad নম্বর</label>
+        <input class="input-field" id="pay-num-nagad" placeholder="01XXXXXXXXX">
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">💜 Rocket নম্বর</label>
+        <input class="input-field" id="pay-num-rocket" placeholder="01XXXXXXXXX">
+        <label style="font-size:12px;color:#888aaa;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">💚 Upay নম্বর</label>
+        <input class="input-field" id="pay-num-upay" placeholder="01XXXXXXXXX">
+        <button class="btn-save" onclick="savePaymentNumbers()">✅ Save করো</button>
+      </div>
+      <div class="card">
         <div class="card-title"><div class="icon">🔗</div>Social Links</div>
         <label style="font-size:12px;color:#888aaa;font-weight:700;display:block;margin-bottom:6px;">Facebook Link</label>
         <input class="input-field" id="settings-facebook" placeholder="https://facebook.com/...">
@@ -730,6 +743,7 @@
       loadNotice();
       loadSlider();
       loadLogos();
+      loadPaymentNumbers();
       loadReferSettings();
       loadProductOptions('uid_bd');
       loadProductRules('uid_bd');
@@ -760,6 +774,28 @@
   function adminLogout() {
     auth.signOut();
     showToast('Logout হয়েছে।', 'info');
+  }
+
+  // PAYMENT NUMBERS
+  function loadPaymentNumbers() {
+    db.ref('settings/payment_numbers').on('value', (snap) => {
+      const nums = snap.val() || {};
+      ['bkash','nagad','rocket','upay'].forEach(m => {
+        const el = document.getElementById('pay-num-' + m);
+        if (el) el.value = nums[m] || '';
+      });
+    });
+  }
+
+  function savePaymentNumbers() {
+    const data = {
+      bkash:  document.getElementById('pay-num-bkash').value.trim(),
+      nagad:  document.getElementById('pay-num-nagad').value.trim(),
+      rocket: document.getElementById('pay-num-rocket').value.trim(),
+      upay:   document.getElementById('pay-num-upay').value.trim(),
+    };
+    db.ref('settings/payment_numbers').set(data);
+    showToast('Payment Numbers save হয়েছে! ✅');
   }
 
   // NOTICE
