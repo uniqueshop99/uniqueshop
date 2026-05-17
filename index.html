@@ -3403,6 +3403,7 @@
   }
 
   // ---- LOAD REFER DATA ----
+  let _referListeners = [];
   function loadReferData() {
     const user = window._currentUser;
     if (!user) {
@@ -3414,18 +3415,20 @@
     const code = getReferCode(user.uid);
     document.getElementById('my-refer-code').textContent = code;
 
-    // Load site link from admin settings
-    onValue(ref(db, 'settings/refer'), (snap) => {
+    // Load site link from admin settings (one-time fetch to avoid stuck loading)
+    get(ref(db, 'settings/refer')).then((snap) => {
       const settings = snap.val() || {};
-      const siteLink = settings.siteLink || window.location.origin + window.location.pathname;
-      const fullLink = siteLink + '?ref=' + code;
+      const siteLink = (settings.siteLink || '').trim();
+      const base = siteLink || (window.location.origin + window.location.pathname);
+      const fullLink = base + '?ref=' + code;
       document.getElementById('my-refer-link').textContent = fullLink;
-
-      // Rule texts
       document.getElementById('refer-rule-text').textContent =
         settings.ruleText || 'বন্ধু Register করলে Diamond পাবেন!';
       document.getElementById('refer-purchase-rule').textContent =
         settings.purchaseRule || '💎 বন্ধু কিছু কিনলে আরো Diamond পাবেন';
+    }).catch(() => {
+      const fallback = window.location.origin + window.location.pathname + '?ref=' + code;
+      document.getElementById('my-refer-link').textContent = fallback;
     });
 
     // Save code to user profile
@@ -3437,16 +3440,21 @@
       }
     });
 
+    // Unsubscribe previous listeners to avoid duplicates
+    if (window._referListeners) window._referListeners.forEach(u => u());
+    window._referListeners = [];
+
     // Realtime stats
-    onValue(ref(db, 'users/' + user.uid + '/referCount'), snap => {
+    const u1 = onValue(ref(db, 'users/' + user.uid + '/referCount'), snap => {
       document.getElementById('refer-count').textContent = snap.val() || 0;
     });
-    onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
+    const u2 = onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
       const d = snap.val() || 0;
       document.getElementById('refer-earned').textContent = d;
       const el = document.getElementById('user-diamond');
       if (el) el.textContent = d;
     });
+    window._referListeners = [u1, u2];
   }
 
   // ---- COPY & SHARE ----
