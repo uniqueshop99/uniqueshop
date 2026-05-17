@@ -1067,18 +1067,14 @@
 
   // TABS
   function switchTab(name, el) {
-    // tab buttons
     document.querySelectorAll('.tab').forEach(function(t) {
       t.classList.remove('active');
     });
-    // tab contents - inline style দিয়ে force করছি
     document.querySelectorAll('.tab-content').forEach(function(t) {
       t.classList.remove('active');
       t.style.display = 'none';
     });
-    // active tab button
     if (el) el.classList.add('active');
-    // active tab content
     var target = document.getElementById('tab-' + name);
     if (target) {
       target.classList.add('active');
