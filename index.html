@@ -2748,7 +2748,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getDatabase, ref, set, get, update, increment, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA8XSewlMspeWEBdC72IGs_Ez4GLdel9CY",
@@ -2772,10 +2772,13 @@
 
     // Auth state listener - update UI when user logs in/out
     window._currentUser = null;
-    window._authReady = false;
     onAuthStateChanged(auth, (user) => {
       window._currentUser = user;
-      window._authReady = true;
+      // Refer page open থাকলে reload করো
+      if (typeof loadReferData === 'function') {
+        const rp = document.getElementById('refer-page');
+        if (rp && rp.style.display !== 'none') loadReferData();
+      }
       if (user) {
         // User logged in
         document.getElementById('nav-login-btn').style.display = 'none';
@@ -2944,6 +2947,200 @@
         }
       }
     });
+
+
+  // ===== REFER & REDEEM FUNCTIONS =====
+  function getReferCode(uid) {
+    return 'UQ' + uid.substring(0, 6).toUpperCase();
+  }
+
+  // ---- OPEN / CLOSE ----
+  window._openRefer = function() {
+    document.getElementById('refer-page').style.display = 'block';
+    window.scrollTo(0,0);
+    loadReferData();
+  }
+  window._closeRefer = function() {
+    document.getElementById('refer-page').style.display = 'none';
+  }
+  window._openRedeem = function() {
+    document.getElementById('redeem-page').style.display = 'block';
+    loadRedeemData();
+  }
+  window._closeRedeem = function() {
+    document.getElementById('redeem-page').style.display = 'none';
+  }
+
+  // ---- LOAD REFER DATA ----
+  function loadReferData() {
+    const user = window._currentUser;
+    if (!user) {
+      document.getElementById('my-refer-code').textContent = 'Login করুন';
+      document.getElementById('my-refer-link').textContent = 'Login করুন';
+      return;
+    }
+
+    const code = getReferCode(user.uid);
+    document.getElementById('my-refer-code').textContent = code;
+
+    // Load site link from admin settings (one-time fetch)
+    get(ref(db, 'settings/refer')).then((snap) => {
+      const settings = snap.val() || {};
+      const siteLink = (settings.siteLink || '').trim();
+      const base = siteLink || (window.location.origin + window.location.pathname);
+      const fullLink = base + '?ref=' + code;
+      document.getElementById('my-refer-link').textContent = fullLink;
+      document.getElementById('refer-rule-text').textContent =
+        settings.ruleText || 'বন্ধু Register করলে Diamond পাবেন!';
+      document.getElementById('refer-purchase-rule').textContent =
+        settings.purchaseRule || '💎 বন্ধু কিছু কিনলে আরো Diamond পাবেন';
+    }).catch(() => {
+      const fallback = window.location.origin + window.location.pathname + '?ref=' + code;
+      document.getElementById('my-refer-link').textContent = fallback;
+    });
+
+    // Save code to user profile
+    const userRef = ref(db, 'users/' + user.uid);
+    get(userRef).then(snap => {
+      const data = snap.val() || {};
+      if (!data.referCode) {
+        update(userRef, { referCode: code, referCount: 0, referDiamonds: 0 });
+      }
+    });
+
+    // Realtime stats
+    onValue(ref(db, 'users/' + user.uid + '/referCount'), snap => {
+      document.getElementById('refer-count').textContent = snap.val() || 0;
+    });
+    onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
+      const d = snap.val() || 0;
+      document.getElementById('refer-earned').textContent = d;
+      const el = document.getElementById('user-diamond');
+      if (el) el.textContent = d;
+    });
+  }
+
+  // ---- COPY & SHARE ----
+  window.copyReferCode = function() {
+    const code = document.getElementById('my-refer-code').textContent;
+    if (code === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
+    navigator.clipboard && navigator.clipboard.writeText(code).then(() => showToast('Code copy হয়েছে! ✅'));
+  }
+
+  window.copyReferLink = function() {
+    const link = document.getElementById('my-refer-link').textContent;
+    if (link === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
+    navigator.clipboard && navigator.clipboard.writeText(link).then(() => showToast('Link copy হয়েছে! ✅'));
+  }
+
+  window.shareRefer = function() {
+    const code = document.getElementById('my-refer-code').textContent;
+    const link = document.getElementById('my-refer-link').textContent;
+    if (code === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
+    const text = '🎮 Unique Shop এ জয়েন করুন!
+💎 Referral Code: ' + code + '
+👉 ' + link + '
+
+জয়েন করলে আমি Diamond পাবো! 🎁';
+    if (navigator.share) {
+      navigator.share({ title: 'Unique Shop - Refer & Earn', text, url: link });
+    } else {
+      navigator.clipboard.writeText(text).then(() => showToast('Link copy হয়েছে! Share করুন ✅'));
+    }
+  }
+
+  // ---- REDEEM ----
+  function loadRedeemData() {
+    const user = window._currentUser;
+    // Load diamond balance
+    if (user) {
+      onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
+        document.getElementById('redeem-diamond-bal').textContent = snap.val() || 0;
+      });
+    }
+    // Load redeem options from admin
+    onValue(ref(db, 'settings/redeem_options'), snap => {
+      const options = snap.val() || {};
+      const list = Object.values(options);
+      const container = document.getElementById('redeem-options-list');
+      if (!list.length) {
+        container.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;">Admin এখনো কোনো option দেননি</div>';
+        return;
+      }
+      container.innerHTML = list.map((opt, i) => `
+        <div class="redeem-option-card">
+          <div class="redeem-option-left">
+            <div class="redeem-option-name">${opt.name || 'Option ' + (i+1)}</div>
+            <div class="redeem-option-cost">💎 ${opt.diamonds || 0} Diamond</div>
+          </div>
+          <button class="btn-redeem-now" onclick="submitRedeem('${opt.name}', ${opt.diamonds})">Redeem</button>
+        </div>
+      `).join('');
+    });
+  }
+
+  window.submitRedeem = async function(name, cost) {
+    const user = window._currentUser;
+    if (!user) { showToast('আগে Login করুন!', 'error'); return; }
+    const snap = await get(ref(db, 'users/' + user.uid + '/referDiamonds'));
+    const bal = snap.val() || 0;
+    if (bal < cost) { showToast('Diamond কম আছে!', 'error'); return; }
+    await push(ref(db, 'redeem_requests'), {
+      uid: user.uid, name: user.displayName || '', item: name,
+      diamonds: cost, status: 'pending', createdAt: new Date().toISOString()
+    });
+    showToast('Redeem request পাঠানো হয়েছে! ✅');
+  }
+
+  window.submitRedeemRequest = async function() {
+    const user = window._currentUser;
+    if (!user) { showToast('আগে Login করুন!', 'error'); return; }
+    const text = document.getElementById('redeem-request-text').value.trim();
+    if (!text) { showToast('Request লিখুন!', 'error'); return; }
+    await push(ref(db, 'redeem_requests'), {
+      uid: user.uid, name: user.displayName || '', item: text,
+      diamonds: 0, status: 'pending', createdAt: new Date().toISOString()
+    });
+    document.getElementById('redeem-request-text').value = '';
+    showToast('Request পাঠানো হয়েছে! ✅');
+  }
+
+  // ---- APPLY REFERRAL after register ----
+  window.addEventListener('load', () => {
+    const refCode = new URLSearchParams(window.location.search).get('ref');
+    if (refCode) localStorage.setItem('pendingRef', refCode);
+  });
+
+  window.applyReferral = async function(newUserUid) {
+    const refCode = localStorage.getItem('pendingRef');
+    if (!refCode) return;
+
+    const newUserSnap = await get(ref(db, 'users/' + newUserUid));
+    const newUserData = newUserSnap.val() || {};
+    if (newUserData.referredBy) return;
+
+    const usersSnap = await get(ref(db, 'users'));
+    if (!usersSnap.exists()) return;
+    const users = usersSnap.val();
+    const referrer = Object.values(users).find(u => u.referCode === refCode && u.uid !== newUserUid);
+    if (referrer) {
+      const diamondReward = window._referDiamondPerRef || 50;
+      await update(ref(db, 'users/' + referrer.uid), {
+        referCount: increment(1),
+        referDiamonds: increment(diamondReward)
+      });
+      await update(ref(db, 'users/' + newUserUid), {
+        referredBy: referrer.uid
+      });
+      localStorage.removeItem('pendingRef');
+    }
+  }
+
+  // Load refer diamond rate from admin
+  onValue(ref(db, 'settings/refer/diamondPerRef'), snap => {
+    window._referDiamondPerRef = snap.val() || 50;
+  });
+
   </script>
 
 
@@ -3365,240 +3562,7 @@
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, get, set, update, increment, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyA8XSewlMspeWEBdC72IGs_Ez4GLdel9CY",
-    authDomain: "topup-eb1a6.firebaseapp.com",
-    databaseURL: "https://topup-eb1a6-default-rtdb.firebaseio.com",
-    projectId: "topup-eb1a6",
-    storageBucket: "topup-eb1a6.appspot.com",
-    messagingSenderId: "777227604718",
-    appId: "1:777227604718:web:bc14782fc130d437a699ff"
-  };
-
-  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  function getReferCode(uid) {
-    return 'UQ' + uid.substring(0, 6).toUpperCase();
-  }
-
-  // ---- OPEN / CLOSE ----
-  window._openRefer = function() {
-    document.getElementById('refer-page').style.display = 'block';
-    window.scrollTo(0,0);
-    loadReferData();
-  }
-  window._closeRefer = function() {
-    document.getElementById('refer-page').style.display = 'none';
-  }
-  window._openRedeem = function() {
-    document.getElementById('redeem-page').style.display = 'block';
-    loadRedeemData();
-  }
-  window._closeRedeem = function() {
-    document.getElementById('redeem-page').style.display = 'none';
-  }
-
-  // ---- LOAD REFER DATA ----
-  function loadReferData() {
-    const user = window._currentUser;
-    if (!window._authReady) {
-      // Auth not ready yet — wait for it
-      let waited = 0;
-      const interval = setInterval(() => {
-        waited += 100;
-        if (window._authReady) {
-          clearInterval(interval);
-          loadReferData();
-        } else if (waited >= 6000) {
-          clearInterval(interval);
-          document.getElementById('my-refer-code').textContent = 'Login করুন';
-          document.getElementById('my-refer-link').textContent = 'Login করুন';
-          document.getElementById('refer-rule-text').textContent = '';
-          document.getElementById('refer-purchase-rule').textContent = '';
-        }
-      }, 100);
-      return;
-    }
-    if (!user) {
-      document.getElementById('my-refer-code').textContent = 'Login করুন';
-      document.getElementById('my-refer-link').textContent = 'Login করুন';
-      document.getElementById('refer-rule-text').textContent = '';
-      document.getElementById('refer-purchase-rule').textContent = '';
-      return;
-    }
-
-    const code = getReferCode(user.uid);
-    document.getElementById('my-refer-code').textContent = code;
-
-    // Load site link from admin settings (one-time fetch to avoid stuck loading)
-    get(ref(db, 'settings/refer')).then((snap) => {
-      const settings = snap.val() || {};
-      const siteLink = (settings.siteLink || '').trim();
-      const base = siteLink || (window.location.origin + window.location.pathname);
-      const fullLink = base + '?ref=' + code;
-      document.getElementById('my-refer-link').textContent = fullLink;
-      document.getElementById('refer-rule-text').textContent =
-        settings.ruleText || 'বন্ধু Register করলে Diamond পাবেন!';
-      document.getElementById('refer-purchase-rule').textContent =
-        settings.purchaseRule || '💎 বন্ধু কিছু কিনলে আরো Diamond পাবেন';
-    }).catch(() => {
-      const fallback = window.location.origin + window.location.pathname + '?ref=' + code;
-      document.getElementById('my-refer-link').textContent = fallback;
-    });
-
-    // Save code to user profile
-    const userRef = ref(db, 'users/' + user.uid);
-    get(userRef).then(snap => {
-      const data = snap.val() || {};
-      if (!data.referCode) {
-        update(userRef, { referCode: code, referCount: 0, referDiamonds: 0 });
-      }
-    });
-
-    // Unsubscribe previous listeners to avoid duplicates
-    if (window._referListeners) window._referListeners.forEach(u => u());
-    window._referListeners = [];
-
-    // Realtime stats
-    const u1 = onValue(ref(db, 'users/' + user.uid + '/referCount'), snap => {
-      document.getElementById('refer-count').textContent = snap.val() || 0;
-    });
-    const u2 = onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
-      const d = snap.val() || 0;
-      document.getElementById('refer-earned').textContent = d;
-      const el = document.getElementById('user-diamond');
-      if (el) el.textContent = d;
-    });
-    window._referListeners = [u1, u2];
-  }
-
-  // ---- COPY & SHARE ----
-  window.copyReferCode = function() {
-    const code = document.getElementById('my-refer-code').textContent;
-    if (code === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
-    navigator.clipboard && navigator.clipboard.writeText(code).then(() => showToast('Code copy হয়েছে! ✅'));
-  }
-
-  window.copyReferLink = function() {
-    const link = document.getElementById('my-refer-link').textContent;
-    if (link === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
-    navigator.clipboard && navigator.clipboard.writeText(link).then(() => showToast('Link copy হয়েছে! ✅'));
-  }
-
-  window.shareRefer = function() {
-    const code = document.getElementById('my-refer-code').textContent;
-    const link = document.getElementById('my-refer-link').textContent;
-    if (code === 'Login করুন') { showToast('আগে Login করুন!', 'error'); return; }
-    const text = '🎮 Unique Shop এ জয়েন করুন!
-💎 Referral Code: ' + code + '
-👉 ' + link + '
-
-জয়েন করলে আমি Diamond পাবো! 🎁';
-    if (navigator.share) {
-      navigator.share({ title: 'Unique Shop - Refer & Earn', text, url: link });
-    } else {
-      navigator.clipboard.writeText(text).then(() => showToast('Link copy হয়েছে! Share করুন ✅'));
-    }
-  }
-
-  // ---- REDEEM ----
-  function loadRedeemData() {
-    const user = window._currentUser;
-    // Load diamond balance
-    if (user) {
-      onValue(ref(db, 'users/' + user.uid + '/referDiamonds'), snap => {
-        document.getElementById('redeem-diamond-bal').textContent = snap.val() || 0;
-      });
-    }
-    // Load redeem options from admin
-    onValue(ref(db, 'settings/redeem_options'), snap => {
-      const options = snap.val() || {};
-      const list = Object.values(options);
-      const container = document.getElementById('redeem-options-list');
-      if (!list.length) {
-        container.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;">Admin এখনো কোনো option দেননি</div>';
-        return;
-      }
-      container.innerHTML = list.map((opt, i) => `
-        <div class="redeem-option-card">
-          <div class="redeem-option-left">
-            <div class="redeem-option-name">${opt.name || 'Option ' + (i+1)}</div>
-            <div class="redeem-option-cost">💎 ${opt.diamonds || 0} Diamond</div>
-          </div>
-          <button class="btn-redeem-now" onclick="submitRedeem('${opt.name}', ${opt.diamonds})">Redeem</button>
-        </div>
-      `).join('');
-    });
-  }
-
-  window.submitRedeem = async function(name, cost) {
-    const user = window._currentUser;
-    if (!user) { showToast('আগে Login করুন!', 'error'); return; }
-    const snap = await get(ref(db, 'users/' + user.uid + '/referDiamonds'));
-    const bal = snap.val() || 0;
-    if (bal < cost) { showToast('Diamond কম আছে!', 'error'); return; }
-    await push(ref(db, 'redeem_requests'), {
-      uid: user.uid, name: user.displayName || '', item: name,
-      diamonds: cost, status: 'pending', createdAt: new Date().toISOString()
-    });
-    showToast('Redeem request পাঠানো হয়েছে! ✅');
-  }
-
-  window.submitRedeemRequest = async function() {
-    const user = window._currentUser;
-    if (!user) { showToast('আগে Login করুন!', 'error'); return; }
-    const text = document.getElementById('redeem-request-text').value.trim();
-    if (!text) { showToast('Request লিখুন!', 'error'); return; }
-    await push(ref(db, 'redeem_requests'), {
-      uid: user.uid, name: user.displayName || '', item: text,
-      diamonds: 0, status: 'pending', createdAt: new Date().toISOString()
-    });
-    document.getElementById('redeem-request-text').value = '';
-    showToast('Request পাঠানো হয়েছে! ✅');
-  }
-
-  // ---- APPLY REFERRAL after register ----
-  window.addEventListener('load', () => {
-    const refCode = new URLSearchParams(window.location.search).get('ref');
-    if (refCode) localStorage.setItem('pendingRef', refCode);
-  });
-
-  window.applyReferral = async function(newUserUid) {
-    const refCode = localStorage.getItem('pendingRef');
-    if (!refCode) return;
-
-    const newUserSnap = await get(ref(db, 'users/' + newUserUid));
-    const newUserData = newUserSnap.val() || {};
-    if (newUserData.referredBy) return;
-
-    const usersSnap = await get(ref(db, 'users'));
-    if (!usersSnap.exists()) return;
-    const users = usersSnap.val();
-    const referrer = Object.values(users).find(u => u.referCode === refCode && u.uid !== newUserUid);
-    if (referrer) {
-      const diamondReward = window._referDiamondPerRef || 50;
-      await update(ref(db, 'users/' + referrer.uid), {
-        referCount: increment(1),
-        referDiamonds: increment(diamondReward)
-      });
-      await update(ref(db, 'users/' + newUserUid), {
-        referredBy: referrer.uid
-      });
-      localStorage.removeItem('pendingRef');
-    }
-  }
-
-  // Load refer diamond rate from admin
-  onValue(ref(db, 'settings/refer/diamondPerRef'), snap => {
-    window._referDiamondPerRef = snap.val() || 50;
-  });
-</script>
+<!-- refer script merged into auth module -->
 
 
 <!-- PAYMENT INTERFACE PAGE -->
