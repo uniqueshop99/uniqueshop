@@ -3466,184 +3466,137 @@
 
 
 <script>
-  var currentProduct = null;
-  var selectedOption = null;
-  var selectedPaymentMethod = 'wallet';
+var currentProduct = null;
+var selectedOption = null;
+var selectedPayMethod = "wallet";
 
-  var PRODUCTS = {
-    uid_bd:         { name: 'Free Fire Uid Topup [BD SERVER]', hasUID: true,  uidLabel: 'Player Id' },
-    unipin:         { name: 'UNIPIN VOUCHER (BDT)',            hasUID: false },
-    weekly_lite:    { name: 'Weekly Lite [ BD Server ]',       hasUID: true,  uidLabel: 'Player Id' },
-    weekly_monthly: { name: 'Weekly & Monthly [ Offer ]',      hasUID: true,  uidLabel: 'Player Id' },
-    level_up:       { name: 'Level Up Pass',                   hasUID: true,  uidLabel: 'Player Id' },
-    evo_access:     { name: 'Uid Evo Access',                  hasUID: true,  uidLabel: 'Player Id (UID)' },
-    indonesia:      { name: 'Free Fire Uid Topup [Indonesia]', hasUID: true,  uidLabel: 'Player Id' },
+function openProduct(key) {
+  var names = {
+    uid_bd: "Free Fire Uid Topup [BD SERVER]",
+    unipin: "UNIPIN VOUCHER (BDT)",
+    weekly_lite: "Weekly Lite [ BD Server ]",
+    weekly_monthly: "Weekly & Monthly [ Offer ]",
+    level_up: "Level Up Pass",
+    evo_access: "Uid Evo Access",
+    indonesia: "Free Fire Uid Topup [Indonesia]"
+  };
+  var hasUID = {uid_bd:1, weekly_lite:1, weekly_monthly:1, level_up:1, evo_access:1, indonesia:1};
+  var defaults = {
+    uid_bd: [["1850 Diamond",1200],["Weekly Lite",45],["2 Monthly",1580],["Monthly",790],["2 Weekly",316],["Weekly",158],["10120 Diamond",6440],["5060 Diamond",3220],["2530 Diamond",1610],["25 Diamond",22],["1240 Diamond",800],["850 Diamond",558],["610 Diamond",400],["355 Diamond",237],["240 Diamond",158],["115 Diamond",79],["50 Diamond",38]],
+    unipin: [["25 Diamond Code",22],["50 Diamond Code",38],["115 Diamond Code",79],["240 Diamond Code",158],["610 Diamond Code",400],["1240 Diamond Code",800],["2530 Diamond Code",1610],["Weekly Code",158],["Monthly Code",790]],
+    weekly_lite: [["Weekly Lite 1 Pc",45],["Weekly Lite 2 Pc",90],["Weekly Lite 3 Pc",135],["Weekly Lite 5 Pc",225],["Weekly Lite 10 Pc",450]],
+    weekly_monthly: [["Weekly",158],["Monthly",790],["2x Weekly",316],["5x Weekly",790],["2X Monthly",1580],["4Weekly 1Monthly",1422],["5X Monthly",3950],["10XWeekly 5Monthly",5530]],
+    level_up: [["6 level (120 Diamond)",43],["10 level (200 Diamond)",75],["15 level (200 Diamond)",75],["20 level (200 Diamond)",75],["25 level (200 Diamond)",75],["30 level (350 Diamond)",105],["Level Up Pass Full (1270 Diamond)",448]],
+    evo_access: [["Evo Access 1 Month",350],["Evo Access 3 Month",950],["Evo Access 6 Month",1800]],
+    indonesia: [["25 Diamond",25],["50 Diamond",48],["115 Diamond",110],["240 Diamond",220],["610 Diamond",550],["1240 Diamond",1100]]
   };
 
-  var DB_URL = 'https://topup-eb1a6-default-rtdb.firebaseio.com';
+  currentProduct = {key: key, name: names[key] || key, hasUID: !!hasUID[key]};
+  selectedOption = null;
+  selectedPayMethod = "wallet";
 
-  function fetchFromDB(path, callback) {
-    fetch(DB_URL + path + '.json')
-      .then(function(r) {
-        if (!r.ok) { callback(null); return; }
-        return r.json();
-      })
-      .then(function(data) { if(data !== undefined) callback(data); })
-      .catch(function() { callback(null); });
+  document.getElementById("ph-name").textContent = currentProduct.name;
+  document.getElementById("pi-name").textContent = currentProduct.name;
+  document.getElementById("player-id-input").value = "";
+  document.getElementById("order-btn").classList.remove("visible");
+
+  var acc = document.getElementById("account-info-section");
+  var stepNum = document.getElementById("payment-step-num");
+  if (currentProduct.hasUID) {
+    acc.style.display = "block";
+    stepNum.textContent = "3";
+  } else {
+    acc.style.display = "none";
+    stepNum.textContent = "2";
   }
 
-  function renderOptions(list) {
-    var container = document.getElementById('recharge-options-container');
-    if (!list || !list.length) {
-      var defaults = DEFAULT_PRODUCT_OPTIONS[currentProduct.key] || [];
-      if (defaults.length) {
-        list = defaults.map(function(d) { return {name: d[0], price: d[1]}; });
-      } else {
-        container.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;font-size:13px;">কোনো package নেই</div>';
-        return;
-      }
+  document.querySelectorAll(".pay-select-card").forEach(function(c) { c.classList.remove("selected"); });
+  var cards = document.querySelectorAll(".pay-select-card");
+  if (cards.length > 0) cards[0].classList.add("selected");
+
+  // Render options
+  var opts = defaults[key] || [];
+  var container = document.getElementById("recharge-options-container");
+  if (opts.length === 0) {
+    container.innerHTML = "<div style='padding:20px;text-align:center;color:#aaa;'>কোনো package নেই</div>";
+  } else {
+    var h = "";
+    for (var i = 0; i < opts.length; i++) {
+      var n = opts[i][0], p = opts[i][1];
+      h += "<div class='recharge-option' onclick='selectRechargeOption(this," + p + ")'>";
+      h += "<div class='ro-dot'></div>";
+      h += "<div class='ro-name'>" + n + "</div>";
+      h += "<div class='ro-price'>" + p + " TK</div>";
+      h += "</div>";
     }
-    var html_str = '';
-    list.forEach(function(opt) {
-      html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + opt.price + ')">' +
-        '<div class="ro-dot"></div>' +
-        '<div class="ro-name">' + opt.name + '</div>' +
-        '<div class="ro-price">' + opt.price + ' TK</div>' +
-        '</div>';
-    });
-    container.innerHTML = html_str;
+    container.innerHTML = h;
   }
 
-  function openProduct(key) {
-    var PRODUCTS = {
-      uid_bd:         { name: 'Free Fire Uid Topup [BD SERVER]', hasUID: true,  uidLabel: 'Player Id' },
-      unipin:         { name: 'UNIPIN VOUCHER (BDT)',            hasUID: false },
-      weekly_lite:    { name: 'Weekly Lite [ BD Server ]',       hasUID: true,  uidLabel: 'Player Id' },
-      weekly_monthly: { name: 'Weekly & Monthly [ Offer ]',      hasUID: true,  uidLabel: 'Player Id' },
-      level_up:       { name: 'Level Up Pass',                   hasUID: true,  uidLabel: 'Player Id' },
-      evo_access:     { name: 'Uid Evo Access',                  hasUID: true,  uidLabel: 'Player Id (UID)' },
-      indonesia:      { name: 'Free Fire Uid Topup [Indonesia]', hasUID: true,  uidLabel: 'Player Id' },
-    };
-
-    var DEFAULTS = {
-      uid_bd: [['1850 Diamond',1200],['Weekly Lite',45],['2 Monthly',1580],['Monthly',790],['2 Weekly',316],['Weekly',158],['10120 Diamond',6440],['5060 Diamond',3220],['2530 Diamond',1610],['25 Diamond',22],['1240 Diamond',800],['850 Diamond',558],['610 Diamond',400],['355 Diamond',237],['240 Diamond',158],['115 Diamond',79],['50 Diamond',38]],
-      unipin: [['25 Diamond Code',22],['50 Diamond Code',38],['115 Diamond Code',79],['240 Diamond Code',158],['610 Diamond Code',400],['1240 Diamond Code',800],['2530 Diamond Code',1610],['Weekly Code',158],['Monthly Code',790]],
-      weekly_lite: [['Weekly Lite 1 Pc',45],['Weekly Lite 2 Pc',90],['Weekly Lite 3 Pc',135],['Weekly Lite 5 Pc',225],['Weekly Lite 10 Pc',450]],
-      weekly_monthly: [['Weekly',158],['Monthly',790],['2x Weekly',316],['5x Weekly',790],['2X Monthly',1580],['4Weekly 1Monthly',1422],['5X Monthly',3950],['10XWeekly 5Monthly',5530]],
-      level_up: [['6 level (120 Diamond)',43],['10 level (200 Diamond)',75],['15 level (200 Diamond)',75],['20 level (200 Diamond)',75],['25 level (200 Diamond)',75],['30 level (350 Diamond)',105],['Level Up Pass Full (1270 Diamond)',448]],
-      evo_access: [['Evo Access 1 Month',350],['Evo Access 3 Month',950],['Evo Access 6 Month',1800]],
-      indonesia: [['25 Diamond',25],['50 Diamond',48],['115 Diamond',110],['240 Diamond',220],['610 Diamond',550],['1240 Diamond',1100]],
-    };
-
-    currentProduct = PRODUCTS[key];
-    if (!currentProduct) return;
-    currentProduct.key = key;
-    selectedOption = null;
-    selectedPaymentMethod = 'wallet';
-
-    document.getElementById('player-id-input').value = '';
-    document.getElementById('order-btn').classList.remove('visible');
-    document.querySelectorAll('.pay-select-card').forEach(function(c) { c.classList.remove('selected'); });
-    if(document.querySelectorAll('.pay-select-card').length) {
-      document.querySelectorAll('.pay-select-card')[0].classList.add('selected');
-    }
-
-    document.getElementById('ph-name').textContent = currentProduct.name;
-    document.getElementById('pi-name').textContent = currentProduct.name;
-
-    var accSection = document.getElementById('account-info-section');
-    var payStepNum = document.getElementById('payment-step-num');
-    if (currentProduct.hasUID) {
-      accSection.style.display = 'block';
-      document.getElementById('player-id-label').textContent = currentProduct.uidLabel || 'Player Id';
-      payStepNum.textContent = '3';
-    } else {
-      accSection.style.display = 'none';
-      payStepNum.textContent = '2';
-    }
-
-    // Show defaults immediately
-    var defaults = DEFAULTS[key] || [];
-    var container = document.getElementById('recharge-options-container');
-    if (defaults.length) {
-      var html_str = '';
-      defaults.forEach(function(d) {
-        html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + d[1] + ')">' +
-          '<div class="ro-dot"></div>' +
-          '<div class="ro-name">' + d[0] + '</div>' +
-          '<div class="ro-price">' + d[1] + ' TK</div>' +
-          '</div>';
+  // Try Firebase override
+  fetch("https://topup-eb1a6-default-rtdb.firebaseio.com/products/" + key + "/options.json")
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (!data || typeof data !== "object") return;
+      var keys = Object.keys(data);
+      if (keys.length === 0) return;
+      var h = "";
+      keys.forEach(function(k) {
+        var opt = data[k];
+        h += "<div class='recharge-option' onclick='selectRechargeOption(this," + opt.price + ")'>";
+        h += "<div class='ro-dot'></div>";
+        h += "<div class='ro-name'>" + opt.name + "</div>";
+        h += "<div class='ro-price'>" + opt.price + " TK</div>";
+        h += "</div>";
       });
-      container.innerHTML = html_str;
-    } else {
-      container.innerHTML = '<div style="padding:20px;text-align:center;color:#aaa;">কোনো package নেই</div>';
-    }
+      document.getElementById("recharge-options-container").innerHTML = h;
+    })
+    .catch(function() {});
 
-    // Try Firebase for admin overrides
-    fetch('https://topup-eb1a6-default-rtdb.firebaseio.com/products/' + key + '/options.json')
-      .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(data) {
-        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-          var list = Object.values(data);
-          var html_str = '';
-          list.forEach(function(opt) {
-            html_str += '<div class="recharge-option" onclick="selectRechargeOption(this,' + opt.price + ')">' +
-              '<div class="ro-dot"></div>' +
-              '<div class="ro-name">' + opt.name + '</div>' +
-              '<div class="ro-price">' + opt.price + ' TK</div>' +
-              '</div>';
-          });
-          container.innerHTML = html_str;
-        }
-      })
-      .catch(function() {});
+  // Rules
+  fetch("https://topup-eb1a6-default-rtdb.firebaseio.com/products/" + key + "/rules.json")
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      var el = document.getElementById("product-rules-text");
+      if (el && data) el.textContent = data;
+    })
+    .catch(function() {});
 
-    // Load rules
-    fetch('https://topup-eb1a6-default-rtdb.firebaseio.com/products/' + key + '/rules.json')
-      .then(function(r) { return r.ok ? r.json() : null; })
-      .then(function(data) {
-        var el = document.getElementById('product-rules-text');
-        if (el && data) el.textContent = data;
-      })
-      .catch(function() {});
+  document.getElementById("product-page").style.display = "block";
+  window.scrollTo(0, 0);
+}
 
-    document.getElementById('product-page').style.display = 'block';
-    window.scrollTo(0, 0);
+function selectRechargeOption(el, price) {
+  document.querySelectorAll(".recharge-option").forEach(function(o) { o.classList.remove("selected"); });
+  el.classList.add("selected");
+  selectedOption = {price: price, name: el.querySelector(".ro-name").textContent};
+  document.getElementById("needed-balance").textContent = price;
+  document.getElementById("order-btn").classList.add("visible");
+}
+
+function selectProductPayment(method, el) {
+  document.querySelectorAll(".pay-select-card").forEach(function(c) { c.classList.remove("selected"); });
+  el.classList.add("selected");
+  selectedPayMethod = method;
+}
+
+function closeProduct() {
+  document.getElementById("product-page").style.display = "none";
+  document.getElementById("order-btn").classList.remove("visible");
+}
+
+function placeOrder() {
+  var user = window._currentUser;
+  if (!user) { showToast("আগে Login করুন!", "error"); return; }
+  if (!selectedOption) { showToast("Package select করুন!", "error"); return; }
+  var uid = document.getElementById("player-id-input").value.trim();
+  if (currentProduct.hasUID && !uid) { showToast("Player ID দিন!", "error"); return; }
+  if (selectedPayMethod === "instant") {
+    if (window.openPayment) openPayment("bkash", selectedOption.price);
+    return;
   }
-  function selectRechargeOption(el, price) {
-    document.querySelectorAll('.recharge-option').forEach(function(o) { o.classList.remove('selected'); });
-    el.classList.add('selected');
-    selectedOption = { price: price, name: el.querySelector('.ro-name').textContent };
-    document.getElementById('needed-balance').textContent = price;
-    document.getElementById('order-btn').classList.add('visible');
-  }
-
-  function selectProductPayment(method, el) {
-    document.querySelectorAll('.pay-select-card').forEach(function(c) { c.classList.remove('selected'); });
-    el.classList.add('selected');
-    selectedPaymentMethod = method;
-  }
-
-  function closeProduct() {
-    document.getElementById('product-page').style.display = 'none';
-    document.getElementById('order-btn').classList.remove('visible');
-  }
-
-  function placeOrder() {
-    var user = window._currentUser;
-    if (!user) { showToast('আগে Login করুন!', 'error'); return; }
-    if (!selectedOption) { showToast('Package select করুন!', 'error'); return; }
-    var uid = document.getElementById('player-id-input').value.trim();
-    if (currentProduct.hasUID && !uid) { showToast('Player ID দিন!', 'error'); return; }
-
-    if (selectedPaymentMethod === 'instant') {
-      if(window.openPayment) openPayment('bkash', selectedOption.price);
-      return;
-    }
-
-    showToast('Order দেওয়া হয়েছে! Admin verify করবে। ✅', 'success');
-    setTimeout(function() { closeProduct(); }, 2000);
-  }
+  showToast("Order দেওয়া হয়েছে! Admin verify করবে ✅", "success");
+  setTimeout(function() { closeProduct(); }, 2000);
+}
 </script>
 </script>
 
