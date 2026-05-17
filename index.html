@@ -2080,6 +2080,202 @@
 
   /* Make footer stick to all pages by keeping it outside overlays */
 
+  /* PAYMENT SUCCESS PAGE */
+  #payment-success-page {
+    position: fixed;
+    inset: 0;
+    background: #f4f6fb;
+    z-index: 1100;
+    display: none;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  .ps-header {
+    background: linear-gradient(135deg, #1a7a4a, #145c37);
+    padding: 50px 24px 80px;
+    text-align: center;
+  }
+  .ps-checkmark {
+    width: 80px; height: 80px;
+    background: rgba(255,255,255,0.15);
+    border: 3px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 38px;
+    animation: popIn 0.4s ease 0.1s both;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .ps-title {
+    font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px;
+  }
+  .ps-subtitle { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .ps-card {
+    background: #fff; border-radius: 16px;
+    margin: -36px 20px 16px; padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative;
+  }
+  .ps-card-title {
+    font-size: 12px; font-weight: 700; color: #aaa;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+  }
+  .ps-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 0; border-bottom: 1px solid #f0f0f5;
+  }
+  .ps-row:last-child { border-bottom: none; }
+  .ps-row-label { font-size: 13px; color: #888; }
+  .ps-row-value { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .ps-row-value.green { color: #1a7a4a; }
+  .ps-info-box {
+    background: #fff8e8; border: 1px solid #f4a261;
+    border-radius: 12px; padding: 14px 16px;
+    margin: 0 20px 16px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .ps-info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .ps-info-text { font-size: 13px; color: #7a5500; line-height: 1.8; }
+  .ps-info-text strong { color: #c0620a; }
+  .btn-history {
+    display: block; margin: 0 20px 12px; padding: 15px;
+    background: #1a1a2e; color: #fff; border: none; border-radius: 14px;
+    font-size: 15px; font-weight: 700;
+    font-family: 'Hind Siliguri', sans-serif;
+    cursor: pointer; text-align: center; width: calc(100% - 40px);
+    transition: background 0.2s;
+  }
+  .btn-history:hover { background: #2a2a4e; }
+  .btn-ps-home {
+    display: block; margin: 0 20px 30px; padding: 14px;
+    background: transparent; color: #888;
+    border: 2px solid #e0e0e8; border-radius: 14px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Hind Siliguri', sans-serif;
+    cursor: pointer; text-align: center; width: calc(100% - 40px);
+    transition: all 0.2s;
+  }
+  /* HISTORY PAGE */
+  #history-page {
+    position: fixed;
+    inset: 0;
+    background: #f4f6fb;
+    z-index: 998;
+    display: none;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+    padding-bottom: 80px;
+  }
+  .history-header {
+    background: #1a1a2e;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .history-back {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .history-header-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  .history-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid #f0f0f8;
+    margin-bottom: 16px;
+  }
+  .history-tab {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #aaa;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Hind Siliguri', sans-serif;
+  }
+  .history-tab.active {
+    color: #e63946;
+    border-bottom-color: #e63946;
+  }
+  .history-tab-content { display: none; padding: 0 16px; }
+  .history-tab-content.active { display: block; }
+  .history-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .hc-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .hc-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 3px;
+  }
+  .hc-sub {
+    font-size: 12px;
+    color: #888;
+  }
+  .hc-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a7a4a;
+    white-space: nowrap;
+  }
+  .hc-divider {
+    height: 1px;
+    background: #f0f0f8;
+    margin: 10px 0;
+  }
+  .hc-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .hc-date { font-size: 11px; color: #aaa; }
+  .hc-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .badge-pending { background: #fff3e0; color: #f57c00; }
+  .badge-done { background: #e8f5e9; color: #2e7d32; }
+  .badge-failed { background: #fce4ec; color: #c62828; }
+  .history-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #aaa;
+  }
+  .history-empty .he-icon { font-size: 48px; margin-bottom: 12px; }
+  .history-empty .he-text { font-size: 14px; line-height: 1.7; }
+
 </style>
 </head>
 <body>
@@ -2755,7 +2951,7 @@
     <div class="nav-icon">🏠</div>
     <div class="nav-label">Home</div>
   </div>
-  <div class="bottom-nav-item" onclick="setActiveNav(this)" id="nav-history">
+  <div class="bottom-nav-item" onclick="setActiveNav(this); openHistory();" id="nav-history">
     <div class="nav-icon">📋</div>
     <div class="nav-label">History</div>
   </div>
@@ -3169,7 +3365,7 @@
 
 <script type="module">
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, get, set, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, get, set, update, increment, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
   import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -3347,15 +3543,23 @@
   window.applyReferral = async function(newUserUid) {
     const refCode = localStorage.getItem('pendingRef');
     if (!refCode) return;
+
+    const newUserSnap = await get(ref(db, 'users/' + newUserUid));
+    const newUserData = newUserSnap.val() || {};
+    if (newUserData.referredBy) return;
+
     const usersSnap = await get(ref(db, 'users'));
     if (!usersSnap.exists()) return;
     const users = usersSnap.val();
     const referrer = Object.values(users).find(u => u.referCode === refCode && u.uid !== newUserUid);
     if (referrer) {
-      const rRef = ref(db, 'users/' + referrer.uid);
-      await update(rRef, {
-        referCount: (referrer.referCount || 0) + 1,
-        referDiamonds: (referrer.referDiamonds || 0) + (window._referDiamondPerRef || 50)
+      const diamondReward = window._referDiamondPerRef || 50;
+      await update(ref(db, 'users/' + referrer.uid), {
+        referCount: increment(1),
+        referDiamonds: increment(diamondReward)
+      });
+      await update(ref(db, 'users/' + newUserUid), {
+        referredBy: referrer.uid
       });
       localStorage.removeItem('pendingRef');
     }
@@ -3472,6 +3676,8 @@
 </div>
 
 <script>
+  // db operations use dynamic import
+
   // Payment method configs — Firebase থেকে নম্বর লোড হবে, না পেলে fallback
   const paymentConfig = {
     bkash:  { name: 'bKash',  icon: '🩷', number: '01700000000', color: '#E2136E', theme: 'theme-bkash' },
@@ -3549,8 +3755,44 @@
     if (!trxId || trxId.length < 5) {
       showToast('সঠিক Transaction ID দিন!', 'error'); return;
     }
-    showToast('Request পাঠানো হয়েছে! ✅ Admin verify করবে।', 'success');
-    setTimeout(() => closePayment(), 2000);
+    const cfg = paymentConfig[currentPayMethod];
+    const amount = currentPayAmount;
+
+    // Save deposit to Firebase
+    const user = window._currentUser;
+    if (user) {
+      const depositData = {
+        method: cfg ? cfg.name : currentPayMethod,
+        amount: amount,
+        trxId: trxId,
+        status: 'pending',
+        createdAt: Date.now()
+      };
+      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js').then(({getDatabase,ref,push})=>{ push(ref(getDatabase(),'deposits/'+user.uid),depositData); });
+    }
+
+    // Show success page
+    document.getElementById('ps-amount').textContent = amount;
+    document.getElementById('ps-method').textContent = cfg ? cfg.name : currentPayMethod;
+    document.getElementById('ps-trxid').textContent = trxId;
+    document.getElementById('payment-page').style.display = 'none';
+    document.getElementById('payment-success-page').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  window.closeSuccessGoHistory = function() {
+    document.getElementById('payment-success-page').style.display = 'none';
+    // Navigate to history tab
+    const historyNav = document.getElementById('nav-history');
+    if (historyNav) historyNav.click();
+    window.scrollTo(0, 0);
+  }
+
+  window.closeSuccessGoHome = function() {
+    document.getElementById('payment-success-page').style.display = 'none';
+    const homeNav = document.querySelector('.bottom-nav-item');
+    if (homeNav) homeNav.click();
+    window.scrollTo(0, 0);
   }
 </script>
 
@@ -3709,6 +3951,84 @@
   </div>
 </div>
 
+<!-- HISTORY PAGE -->
+<div id="history-page">
+  <div class="history-header">
+    <button class="history-back" onclick="closeHistory()">&#8592;</button>
+    <div class="history-header-title">📋 History</div>
+  </div>
+
+  <div class="history-tabs">
+    <div class="history-tab active" onclick="switchHistoryTab('order', this)">🎮 Order History</div>
+    <div class="history-tab" onclick="switchHistoryTab('deposit', this)">💰 Deposit History</div>
+  </div>
+
+  <!-- Order History -->
+  <div class="history-tab-content active" id="htab-order">
+    <div id="order-history-list">
+      <div class="history-empty">
+        <div class="he-icon">🎮</div>
+        <div class="he-text">লোড হচ্ছে...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deposit History -->
+  <div class="history-tab-content" id="htab-deposit">
+    <div id="deposit-history-list">
+      <div class="history-empty">
+        <div class="he-icon">💰</div>
+        <div class="he-text">লোড হচ্ছে...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT SUCCESS PAGE -->
+<div id="payment-success-page">
+  <div class="ps-header">
+    <div class="ps-checkmark">✓</div>
+    <div class="ps-title">রিকোয়েস্ট গৃহীত হয়েছে!</div>
+    <div class="ps-subtitle">আপনার পেমেন্ট রিকোয়েস্ট সফলভাবে পাঠানো হয়েছে।<br>Admin যাচাই করার পর Balance যোগ হবে।</div>
+  </div>
+
+  <div class="ps-card">
+    <div class="ps-card-title">📄 পেমেন্ট সারসংক্ষেপ</div>
+    <div class="ps-row">
+      <span class="ps-row-label">পরিমাণ</span>
+      <span class="ps-row-value green">৳ <span id="ps-amount">0</span></span>
+    </div>
+    <div class="ps-row">
+      <span class="ps-row-label">পেমেন্ট মাধ্যম</span>
+      <span class="ps-row-value" id="ps-method">-</span>
+    </div>
+    <div class="ps-row">
+      <span class="ps-row-label">Transaction ID</span>
+      <span class="ps-row-value" id="ps-trxid">-</span>
+    </div>
+    <div class="ps-row">
+      <span class="ps-row-label">স্ট্যাটাস</span>
+      <span class="ps-row-value" style="color:#f4a261;">⏳ যাচাই চলছে</span>
+    </div>
+  </div>
+
+  <div class="ps-info-box">
+    <div class="ps-info-icon">ℹ️</div>
+    <div class="ps-info-text">
+      আপনার পেমেন্ট রিকোয়েস্ট Accept করা হয়েছে।<br>
+      পেমেন্ট আপডেট জানতে <strong>History চেক করুন।</strong><br>
+      সাধারণত <strong>৫-১৫ মিনিটের</strong> মধ্যে Balance যোগ হয়।
+    </div>
+  </div>
+
+  <button class="btn-history" onclick="closeSuccessGoHistory()">
+    📋 History দেখুন
+  </button>
+  <button class="btn-ps-home" onclick="closeSuccessGoHome()">
+    🏠 হোমে ফিরে যান
+  </button>
+</div>
+
 <!-- Fixed Order Button -->
 <button class="btn-order" id="order-btn" onclick="placeOrder()">Order করুন</button>
 
@@ -3842,13 +4162,120 @@ function placeOrder() {
     if (window.openPayment) openPayment("bkash", selectedOption.price);
     return;
   }
+
+  // Save order to Firebase
+  var orderData = {
+    product: currentProduct.name,
+    package: selectedOption.name,
+    price: selectedOption.price,
+    playerId: uid || '-',
+    payMethod: 'wallet',
+    status: 'pending',
+    createdAt: Date.now()
+  };
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js").then(({ getDatabase, ref, push }) => {
+    const db2 = getDatabase();
+    push(ref(db2, 'orders/' + user.uid), orderData);
+  });
+
   showToast("Order দেওয়া হয়েছে! Admin verify করবে ✅", "success");
   setTimeout(function() { closeProduct(); }, 2000);
 }
 </script>
+
+<script>
+// HISTORY PAGE
+function openHistory() {
+  document.getElementById('history-page').style.display = 'block';
+  window.scrollTo(0, 0);
+  loadHistoryData();
+}
+
+function closeHistory() {
+  document.getElementById('history-page').style.display = 'none';
+  document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('nav-home').classList.add('active');
+}
+
+function switchHistoryTab(name, el) {
+  document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.history-tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('htab-' + name).classList.add('active');
+}
+
+function loadHistoryData() {
+  var user = window._currentUser;
+  if (!user) {
+    document.getElementById('order-history-list').innerHTML = '<div class="history-empty"><div class="he-icon">🔐</div><div class="he-text">History দেখতে Login করুন।</div></div>';
+    document.getElementById('deposit-history-list').innerHTML = '<div class="history-empty"><div class="he-icon">🔐</div><div class="he-text">History দেখতে Login করুন।</div></div>';
+    return;
+  }
+
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js").then(({ getDatabase, ref, onValue }) => {
+    const db2 = getDatabase();
+
+    // ORDER HISTORY
+    onValue(ref(db2, 'orders/' + user.uid), (snap) => {
+      const data = snap.val() || {};
+      const list = Object.values(data).reverse();
+      const container = document.getElementById('order-history-list');
+      if (!list.length) {
+        container.innerHTML = '<div class="history-empty"><div class="he-icon">🎮</div><div class="he-text">এখনো কোনো Order নেই।<br>প্রথম Order করুন!</div></div>';
+        return;
+      }
+      container.innerHTML = list.map(o => `
+        <div class="history-card">
+          <div class="hc-top">
+            <div>
+              <div class="hc-name">${o.product || '-'}</div>
+              <div class="hc-sub">📦 ${o.package || '-'} ${o.playerId && o.playerId !== '-' ? '• 🎮 UID: ' + o.playerId : ''}</div>
+            </div>
+            <div class="hc-amount">৳${o.price || 0}</div>
+          </div>
+          <div class="hc-divider"></div>
+          <div class="hc-bottom">
+            <div class="hc-date">🕐 ${o.createdAt ? new Date(o.createdAt).toLocaleString('bn-BD') : '-'}</div>
+            <span class="hc-badge ${o.status === 'done' ? 'badge-done' : o.status === 'failed' ? 'badge-failed' : 'badge-pending'}">
+              ${o.status === 'done' ? '✅ সম্পন্ন' : o.status === 'failed' ? '❌ বাতিল' : '⏳ প্রক্রিয়াধীন'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    });
+
+    // DEPOSIT HISTORY
+    onValue(ref(db2, 'deposits/' + user.uid), (snap) => {
+      const data = snap.val() || {};
+      const list = Object.values(data).reverse();
+      const container = document.getElementById('deposit-history-list');
+      if (!list.length) {
+        container.innerHTML = '<div class="history-empty"><div class="he-icon">💰</div><div class="he-text">এখনো কোনো Deposit নেই।<br>Balance Add করুন!</div></div>';
+        return;
+      }
+      container.innerHTML = list.map(d => `
+        <div class="history-card">
+          <div class="hc-top">
+            <div>
+              <div class="hc-name">${d.method || '-'} Deposit</div>
+              <div class="hc-sub">🔖 TrxID: ${d.trxId || '-'}</div>
+            </div>
+            <div class="hc-amount">৳${d.amount || 0}</div>
+          </div>
+          <div class="hc-divider"></div>
+          <div class="hc-bottom">
+            <div class="hc-date">🕐 ${d.createdAt ? new Date(d.createdAt).toLocaleString('bn-BD') : '-'}</div>
+            <span class="hc-badge ${d.status === 'done' ? 'badge-done' : d.status === 'failed' ? 'badge-failed' : 'badge-pending'}">
+              ${d.status === 'done' ? '✅ যোগ হয়েছে' : d.status === 'failed' ? '❌ বাতিল' : '⏳ যাচাই চলছে'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+    });
+  });
+}
 </script>
-
-
+</script>
 
 </body>
 </html>
