@@ -3403,12 +3403,24 @@
   }
 
   // ---- LOAD REFER DATA ----
-  let _referListeners = [];
   function loadReferData() {
     const user = window._currentUser;
-    if (!user) {
-      document.getElementById('my-refer-code').textContent = 'Login করুন';
-      document.getElementById('my-refer-link').textContent = 'Login করুন';
+    if (user === undefined || user === null) {
+      // Auth not ready yet — wait and retry
+      let waited = 0;
+      const interval = setInterval(() => {
+        waited += 100;
+        if (window._currentUser) {
+          clearInterval(interval);
+          loadReferData();
+        } else if (waited >= 5000) {
+          clearInterval(interval);
+          document.getElementById('my-refer-code').textContent = 'Login করুন';
+          document.getElementById('my-refer-link').textContent = 'Login করুন';
+          document.getElementById('refer-rule-text').textContent = '';
+          document.getElementById('refer-purchase-rule').textContent = '';
+        }
+      }, 100);
       return;
     }
 
