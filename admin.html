@@ -497,6 +497,7 @@
   <!-- TABS -->
   <div class="tabs">
     <div class="tab active" onclick="switchTab('notice')">📢 Notice</div>
+    <div class="tab" onclick="switchTab('settings')">⚙️ Settings</div>
     <div class="tab" onclick="switchTab('slider')">🖼️ Slider</div>
     <div class="tab" onclick="switchTab('products')">🎮 Products</div>
     <div class="tab" onclick="switchTab('logos')">💳 Logos</div>
@@ -519,6 +520,25 @@
         <br>
         <button class="btn-save" onclick="saveNotice()">✅ Save করো</button>
         <button class="btn-clear" onclick="clearNotice()">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS TAB -->
+    <div class="tab-content" id="tab-settings">
+      <div class="card">
+        <div class="card-title"><div class="icon">📞</div>Helpline Number</div>
+        <input class="input-field" id="settings-helpline" placeholder="01XXXXXXXXX">
+        <button class="btn-save" onclick="saveSettings()">✅ Save করো</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="icon">🔗</div>Social Links</div>
+        <label style="font-size:12px;color:#888aaa;font-weight:700;display:block;margin-bottom:6px;">Facebook Link</label>
+        <input class="input-field" id="settings-facebook" placeholder="https://facebook.com/...">
+        <label style="font-size:12px;color:#888aaa;font-weight:700;display:block;margin-bottom:6px;">WhatsApp Link</label>
+        <input class="input-field" id="settings-whatsapp" placeholder="https://wa.me/880...">
+        <label style="font-size:12px;color:#888aaa;font-weight:700;display:block;margin-bottom:6px;">Telegram Link</label>
+        <input class="input-field" id="settings-telegram" placeholder="https://t.me/...">
+        <button class="btn-save" onclick="saveSocialLinks()">✅ Save করো</button>
       </div>
     </div>
 
@@ -706,6 +726,7 @@
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('admin-panel').style.display = 'block';
       document.getElementById('admin-display-name').textContent = user.displayName || user.email;
+      loadSettings();
       loadNotice();
       loadSlider();
       loadLogos();
@@ -748,6 +769,34 @@
       document.getElementById('current-notice-text').textContent = val || '(খালি)';
       document.getElementById('notice-input').value = val;
     });
+  }
+
+  function loadSettings() {
+    db.ref('settings/helpline').on('value', (snap) => {
+      const el = document.getElementById('settings-helpline');
+      if (el) el.value = snap.val() || '';
+    });
+    db.ref('settings/social').on('value', (snap) => {
+      const s = snap.val() || {};
+      if (document.getElementById('settings-facebook')) document.getElementById('settings-facebook').value = s.facebook || '';
+      if (document.getElementById('settings-whatsapp')) document.getElementById('settings-whatsapp').value = s.whatsapp || '';
+      if (document.getElementById('settings-telegram')) document.getElementById('settings-telegram').value = s.telegram || '';
+    });
+  }
+
+  function saveSettings() {
+    const helpline = document.getElementById('settings-helpline').value.trim();
+    db.ref('settings/helpline').set(helpline);
+    showToast('Helpline save হয়েছে! ✅');
+  }
+
+  function saveSocialLinks() {
+    db.ref('settings/social').set({
+      facebook: document.getElementById('settings-facebook').value.trim(),
+      whatsapp: document.getElementById('settings-whatsapp').value.trim(),
+      telegram: document.getElementById('settings-telegram').value.trim(),
+    });
+    showToast('Social links save হয়েছে! ✅');
   }
 
   function saveNotice() {
