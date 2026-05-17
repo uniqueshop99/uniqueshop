@@ -2983,21 +2983,25 @@
     const code = getReferCode(user.uid);
     document.getElementById('my-refer-code').textContent = code;
 
-    // Load site link from admin settings (one-time fetch)
-    get(ref(db, 'settings/refer')).then((snap) => {
-      const settings = snap.val() || {};
-      const siteLink = (settings.siteLink || '').trim();
-      const base = siteLink || (window.location.origin + window.location.pathname);
-      const fullLink = base + '?ref=' + code;
-      document.getElementById('my-refer-link').textContent = fullLink;
-      document.getElementById('refer-rule-text').textContent =
-        settings.ruleText || 'বন্ধু Register করলে Diamond পাবেন!';
-      document.getElementById('refer-purchase-rule').textContent =
-        settings.purchaseRule || '💎 বন্ধু কিছু কিনলে আরো Diamond পাবেন';
-    }).catch(() => {
-      const fallback = window.location.origin + window.location.pathname + '?ref=' + code;
-      document.getElementById('my-refer-link').textContent = fallback;
-    });
+    // Load refer settings via REST API (bypasses auth requirement)
+    fetch('https://topup-eb1a6-default-rtdb.firebaseio.com/settings/refer.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(settings => {
+        settings = settings || {};
+        const siteLink = (settings.siteLink || '').trim();
+        const base = siteLink || (window.location.origin + window.location.pathname);
+        const fullLink = base + '?ref=' + code;
+        document.getElementById('my-refer-link').textContent = fullLink;
+        document.getElementById('refer-rule-text').textContent =
+          settings.ruleText || 'বন্ধু Register করলে Diamond পাবেন!';
+        document.getElementById('refer-purchase-rule').textContent =
+          settings.purchaseRule || '💎 বন্ধু কিছু কিনলে আরো Diamond পাবেন';
+      })
+      .catch(() => {
+        const base = window.location.origin + window.location.pathname;
+        document.getElementById('my-refer-link').textContent = base + '?ref=' + code;
+        document.getElementById('refer-rule-text').textContent = 'বন্ধু Register করলে Diamond পাবেন!';
+      });
 
     // Save code to user profile
     const userRef = ref(db, 'users/' + user.uid);
@@ -3804,9 +3808,12 @@
     }
   });
   function openRefer() {
-    document.getElementById('refer-page').style.display = 'block';
-    window.scrollTo(0,0);
-    if(window._openRefer) window._openRefer();
+    if(window._openRefer) {
+      window._openRefer();
+    } else {
+      document.getElementById('refer-page').style.display = 'block';
+      window.scrollTo(0,0);
+    }
   }
   function closeRefer() {
     document.getElementById('refer-page').style.display = 'none';
