@@ -2740,22 +2740,15 @@
   <!-- Firebase SDK -->
   
 <script>
-  // Login/Register bridges - wait for Firebase to load
-  // Firebase init promise — resolve হলেই auth/db ready
-  window._firebaseReady = new Promise(function(resolve) {
-    window._firebaseResolve = resolve;
-  });
-
-  // Button click handlers — Firebase ready হওয়া পর্যন্ত wait করে
-  async function doLogin() {
-    showToast('একটু অপেক্ষা করুন...', 'info');
-    const fb = await window._firebaseReady;
+  // Firebase functions will be assigned after module loads
+  window.doLogin = async function() {
+    if (!window._fbAuth) { showToast('একটু অপেক্ষা করুন, লোড হচ্ছে...', 'info'); return; }
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     if (!email || !password) { showToast('ইমেইল ও পাসওয়ার্ড দিন!', 'error'); return; }
     try {
       showToast('Login হচ্ছে...', 'info');
-      await fb.signInWithEmailAndPassword(fb.auth, email, password);
+      await window._fbSignIn(window._fbAuth, email, password);
       showToast('Login সফল হয়েছে! ✅', 'success');
       goHome();
     } catch (err) {
@@ -2765,11 +2758,10 @@
         showToast('Error: ' + (err.message || err.code), 'error');
       }
     }
-  }
+  };
 
-  async function doRegister() {
-    showToast('একটু অপেক্ষা করুন...', 'info');
-    const fb = await window._firebaseReady;
+  window.doRegister = async function() {
+    if (!window._fbAuth) { showToast('একটু অপেক্ষা করুন, লোড হচ্ছে...', 'info'); return; }
     const name = document.getElementById('reg-name').value.trim();
     const phone = document.getElementById('reg-phone').value.trim();
     const email = document.getElementById('reg-email').value.trim();
@@ -2778,9 +2770,10 @@
     if (password.length < 6) { showToast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে!', 'error'); return; }
     if (!email) { showToast('ইমেইল দিন!', 'error'); return; }
     try {
-      const userCredential = await fb.createUserWithEmailAndPassword(fb.auth, email, password);
+      showToast('Register হচ্ছে...', 'info');
+      const userCredential = await window._fbCreateUser(window._fbAuth, email, password);
       const user = userCredential.user;
-      await fb.set(fb.ref(fb.db, 'users/' + user.uid), {
+      await window._fbSet(window._fbRef(window._fbDb, 'users/' + user.uid), {
         name: name, phone: phone, email: email,
         createdAt: new Date().toISOString(), uid: user.uid
       });
@@ -2794,28 +2787,28 @@
         showToast('Error: ' + (err.message || err.code), 'error');
       }
     }
-  }
+  };
 
-  async function googleLogin() {
+  window.googleLogin = async function() {
+    if (!window._fbAuth) { showToast('একটু অপেক্ষা করুন, লোড হচ্ছে...', 'info'); return; }
     showToast('Google Login হচ্ছে...', 'info');
-    const fb = await window._firebaseReady;
     try {
       let result = null;
       try {
-        result = await fb.signInWithPopup(fb.auth, fb.googleProvider);
+        result = await window._fbSignInPopup(window._fbAuth, window._fbGoogleProvider);
       } catch (popupErr) {
         if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-closed-by-user') {
           showToast('Popup blocked! Redirect করা হচ্ছে...', 'info');
-          await fb.signInWithRedirect(fb.auth, fb.googleProvider);
+          await window._fbSignInRedirect(window._fbAuth, window._fbGoogleProvider);
           return;
         }
         throw popupErr;
       }
       if (!result || !result.user) return;
       const user = result.user;
-      const snapshot = await fb.get(fb.ref(fb.db, 'users/' + user.uid));
+      const snapshot = await window._fbGet(window._fbRef(window._fbDb, 'users/' + user.uid));
       if (!snapshot.exists()) {
-        await fb.set(fb.ref(fb.db, 'users/' + user.uid), {
+        await window._fbSet(window._fbRef(window._fbDb, 'users/' + user.uid), {
           name: user.displayName || '', email: user.email || '',
           phone: '', createdAt: new Date().toISOString(),
           uid: user.uid, loginMethod: 'google'
@@ -2830,7 +2823,7 @@
         showToast('Google Login হয়নি: ' + (err.message || err.code), 'error');
       }
     }
-  }
+  };
 </script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -2857,14 +2850,17 @@
     window._fbDb = db;
     window._fbRef = ref;
     window._fbOnValue = onValue;
-
-    // Resolve the ready promise — এখন সব button functions কাজ করবে
-    window._firebaseResolve({
-      auth, db, googleProvider,
-      signInWithEmailAndPassword, createUserWithEmailAndPassword,
-      signInWithPopup, signInWithRedirect,
-      ref, set, get, onValue, push, update, increment, signOut
-    });
+    window._fbAuth = auth;
+    window._fbGoogleProvider = googleProvider;
+    window._fbSignIn = signInWithEmailAndPassword;
+    window._fbCreateUser = createUserWithEmailAndPassword;
+    window._fbSignInPopup = signInWithPopup;
+    window._fbSignInRedirect = signInWithRedirect;
+    window._fbGet = get;
+    window._fbSet = set;
+    window._fbUpdate = update;
+    window._fbPush = push;
+    window._fbIncrement = increment;
 
     // Handle Google redirect result
     getRedirectResult(auth).then(async (result) => {
