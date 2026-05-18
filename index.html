@@ -2745,7 +2745,32 @@
 </script>
 
   <!-- Firebase SDK -->
-  <script type="module">
+  
+<script>
+  // Login/Register bridges - wait for Firebase to load
+  function doLogin() {
+    if (window.doLogin_firebase) {
+      window.doLogin_firebase();
+    } else {
+      setTimeout(doLogin, 300);
+    }
+  }
+  function doRegister() {
+    if (window.doRegister_firebase) {
+      window.doRegister_firebase();
+    } else {
+      setTimeout(doRegister, 300);
+    }
+  }
+  function googleLogin() {
+    if (window.googleLogin_firebase) {
+      window.googleLogin_firebase();
+    } else {
+      setTimeout(googleLogin, 300);
+    }
+  }
+</script>
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getDatabase, ref, set, get, update, increment, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -2817,7 +2842,7 @@
     });
 
     // REGISTER
-    window.doRegister = async function() {
+    window.doRegister_firebase = async function() {
       const name = document.getElementById('reg-name').value.trim();
       const phone = document.getElementById('reg-phone').value.trim();
       const email = document.getElementById('reg-email').value.trim();
@@ -2859,7 +2884,7 @@
     };
 
     // LOGIN with email/password
-    window.doLogin = async function() {
+    window.doLogin_firebase = async function() {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
 
@@ -2881,7 +2906,7 @@
     };
 
     // LOGIN with Google
-    window.googleLogin = async function() {
+    window.googleLogin_firebase = async function() {
       try {
         showToast('Google Login হচ্ছে...', 'info');
         const result = await signInWithPopup(auth, googleProvider);
