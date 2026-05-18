@@ -2757,6 +2757,7 @@
       showToast('Login হচ্ছে...', 'info');
       await fb.signInWithEmailAndPassword(fb.auth, email, password);
       showToast('Login সফল হয়েছে! ✅', 'success');
+      goHome();
     } catch (err) {
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         showToast('ইমেইল বা পাসওয়ার্ড ভুল!', 'error');
@@ -2785,6 +2786,7 @@
       });
       showToast('Registration সফল হয়েছে! ✅', 'success');
       if (window.applyReferral) window.applyReferral(user.uid);
+      goHome();
     } catch (err) {
       if (err.code === 'auth/email-already-in-use') {
         showToast('এই ইমেইল দিয়ে আগেই একাউন্ট আছে!', 'error');
@@ -2820,6 +2822,7 @@
         });
       }
       showToast('Google Login সফল! ✅', 'success');
+      goHome();
     } catch (err) {
       if (err.code === 'auth/popup-closed-by-user') {
         showToast('Google Login বাতিল করা হয়েছে।', 'info');
@@ -2880,8 +2883,10 @@
             });
           }
           showToast('Google Login সফল! ✅', 'success');
+          goHome();
         } catch (dbErr) {
           showToast('Google Login সফল! ✅', 'success');
+          goHome();
         }
       }
     }).catch((err) => {
