@@ -2389,7 +2389,7 @@
       <input type="tel" id="reg-phone" placeholder="01XXXXXXXXX">
     </div>
     <div class="form-group">
-      <label>ইমেইল (ঐচ্ছিক)</label>
+      <label>ইমেইল</label>
       <input type="email" id="reg-email" placeholder="email@gmail.com">
     </div>
     <div class="form-group">
@@ -2463,14 +2463,7 @@
     showPage(showId);
   }
 
-  function googleLogin() {
-    // Google OAuth redirect — replace CLIENT_ID with your actual Google OAuth Client ID
-    const clientId = 'YOUR_GOOGLE_CLIENT_ID';
-    const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
-    const scope = encodeURIComponent('openid email profile');
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
-    window.location.href = url;
-  }
+  // googleLogin handled by Firebase bridge below
 </script>
 
 <!-- NOTICE -->
@@ -2909,7 +2902,7 @@
     window.googleLogin_firebase = async function() {
       try {
         showToast('Google Login হচ্ছে...', 'info');
-        const result = await signInWithPopup(auth, googleProvider);
+        const result = await signInWithPopup(auth, googleProvider).catch(async (e) => { if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') { return await signInWithRedirect(auth, googleProvider); } throw e; });
         const user = result.user;
 
         // Save to Realtime Database if new user
