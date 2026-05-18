@@ -2747,7 +2747,7 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getDatabase, ref, set, get, update, increment, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -2769,6 +2769,25 @@
     window._fbRef = ref;
     window._fbOnValue = onValue;
     const googleProvider = new GoogleAuthProvider();
+
+    // Handle Google redirect result
+    getRedirectResult(auth).then(async (result) => {
+      if (result && result.user) {
+        const user = result.user;
+        const snapshot = await get(ref(db, 'users/' + user.uid));
+        if (!snapshot.exists()) {
+          await set(ref(db, 'users/' + user.uid), {
+            name: user.displayName,
+            email: user.email,
+            phone: '',
+            createdAt: new Date().toISOString(),
+            uid: user.uid,
+            loginMethod: 'google'
+          });
+        }
+        showToast('Google Login সফল! ✅', 'success');
+      }
+    }).catch(() => {});
 
     // Auth state listener - update UI when user logs in/out
     window._currentUser = null;
