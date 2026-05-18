@@ -2792,20 +2792,28 @@
     getRedirectResult(auth).then(async (result) => {
       if (result && result.user) {
         const user = result.user;
-        const snapshot = await get(ref(db, 'users/' + user.uid));
-        if (!snapshot.exists()) {
-          await set(ref(db, 'users/' + user.uid), {
-            name: user.displayName,
-            email: user.email,
-            phone: '',
-            createdAt: new Date().toISOString(),
-            uid: user.uid,
-            loginMethod: 'google'
-          });
+        try {
+          const snapshot = await get(ref(db, 'users/' + user.uid));
+          if (!snapshot.exists()) {
+            await set(ref(db, 'users/' + user.uid), {
+              name: user.displayName || '',
+              email: user.email || '',
+              phone: '',
+              createdAt: new Date().toISOString(),
+              uid: user.uid,
+              loginMethod: 'google'
+            });
+          }
+          showToast('Google Login সফল! ✅', 'success');
+        } catch (dbErr) {
+          showToast('Google Login সফল! ✅', 'success');
         }
-        showToast('Google Login সফল! ✅', 'success');
       }
-    }).catch(() => {});
+    }).catch((err) => {
+      if (err && err.code && err.code !== 'auth/no-current-user') {
+        showToast('Google Login হয়নি: ' + (err.message || err.code), 'error');
+      }
+    });
 
     // Auth state listener - update UI when user logs in/out
     window._currentUser = null;
@@ -2902,15 +2910,26 @@
     window.googleLogin_firebase = async function() {
       try {
         showToast('Google Login হচ্ছে...', 'info');
-        const result = await signInWithPopup(auth, googleProvider).catch(async (e) => { if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') { return await signInWithRedirect(auth, googleProvider); } throw e; });
+        let result = null;
+        try {
+          result = await signInWithPopup(auth, googleProvider);
+        } catch (popupErr) {
+          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-closed-by-user') {
+            showToast('Popup blocked! Redirect করা হচ্ছে...', 'info');
+            await signInWithRedirect(auth, googleProvider);
+            return; // redirect will reload the page, result handled by getRedirectResult above
+          }
+          throw popupErr;
+        }
+        if (!result || !result.user) return;
         const user = result.user;
 
         // Save to Realtime Database if new user
         const snapshot = await get(ref(db, 'users/' + user.uid));
         if (!snapshot.exists()) {
           await set(ref(db, 'users/' + user.uid), {
-            name: user.displayName,
-            email: user.email,
+            name: user.displayName || '',
+            email: user.email || '',
             phone: '',
             createdAt: new Date().toISOString(),
             uid: user.uid,
@@ -2919,7 +2938,11 @@
         }
         showToast('Google Login সফল! ✅', 'success');
       } catch (err) {
-        showToast('Google Login হয়নি: ' + err.message, 'error');
+        if (err.code === 'auth/popup-closed-by-user') {
+          showToast('Google Login বাতিল করা হয়েছে।', 'info');
+        } else {
+          showToast('Google Login হয়নি: ' + (err.message || err.code), 'error');
+        }
       }
     };
 
@@ -4304,7 +4327,6 @@ function loadHistoryData() {
     });
   });
 }
-</script>
 </script>
 
 </body>
