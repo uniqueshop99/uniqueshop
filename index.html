@@ -2741,25 +2741,91 @@
   
 <script>
   // Login/Register bridges - wait for Firebase to load
-  function doLogin() {
-    if (window.doLogin_firebase) {
-      window.doLogin_firebase();
-    } else {
-      setTimeout(doLogin, 300);
+  // Firebase init promise — resolve হলেই auth/db ready
+  window._firebaseReady = new Promise(function(resolve) {
+    window._firebaseResolve = resolve;
+  });
+
+  // Button click handlers — Firebase ready হওয়া পর্যন্ত wait করে
+  async function doLogin() {
+    showToast('একটু অপেক্ষা করুন...', 'info');
+    const fb = await window._firebaseReady;
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { showToast('ইমেইল ও পাসওয়ার্ড দিন!', 'error'); return; }
+    try {
+      showToast('Login হচ্ছে...', 'info');
+      await fb.signInWithEmailAndPassword(fb.auth, email, password);
+      showToast('Login সফল হয়েছে! ✅', 'success');
+    } catch (err) {
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        showToast('ইমেইল বা পাসওয়ার্ড ভুল!', 'error');
+      } else {
+        showToast('Error: ' + (err.message || err.code), 'error');
+      }
     }
   }
-  function doRegister() {
-    if (window.doRegister_firebase) {
-      window.doRegister_firebase();
-    } else {
-      setTimeout(doRegister, 300);
+
+  async function doRegister() {
+    showToast('একটু অপেক্ষা করুন...', 'info');
+    const fb = await window._firebaseReady;
+    const name = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    if (!name || !phone || !password) { showToast('সব তথ্য পূরণ করুন!', 'error'); return; }
+    if (password.length < 6) { showToast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে!', 'error'); return; }
+    if (!email) { showToast('ইমেইল দিন!', 'error'); return; }
+    try {
+      const userCredential = await fb.createUserWithEmailAndPassword(fb.auth, email, password);
+      const user = userCredential.user;
+      await fb.set(fb.ref(fb.db, 'users/' + user.uid), {
+        name: name, phone: phone, email: email,
+        createdAt: new Date().toISOString(), uid: user.uid
+      });
+      showToast('Registration সফল হয়েছে! ✅', 'success');
+      if (window.applyReferral) window.applyReferral(user.uid);
+    } catch (err) {
+      if (err.code === 'auth/email-already-in-use') {
+        showToast('এই ইমেইল দিয়ে আগেই একাউন্ট আছে!', 'error');
+      } else {
+        showToast('Error: ' + (err.message || err.code), 'error');
+      }
     }
   }
-  function googleLogin() {
-    if (window.googleLogin_firebase) {
-      window.googleLogin_firebase();
-    } else {
-      setTimeout(googleLogin, 300);
+
+  async function googleLogin() {
+    showToast('Google Login হচ্ছে...', 'info');
+    const fb = await window._firebaseReady;
+    try {
+      let result = null;
+      try {
+        result = await fb.signInWithPopup(fb.auth, fb.googleProvider);
+      } catch (popupErr) {
+        if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-closed-by-user') {
+          showToast('Popup blocked! Redirect করা হচ্ছে...', 'info');
+          await fb.signInWithRedirect(fb.auth, fb.googleProvider);
+          return;
+        }
+        throw popupErr;
+      }
+      if (!result || !result.user) return;
+      const user = result.user;
+      const snapshot = await fb.get(fb.ref(fb.db, 'users/' + user.uid));
+      if (!snapshot.exists()) {
+        await fb.set(fb.ref(fb.db, 'users/' + user.uid), {
+          name: user.displayName || '', email: user.email || '',
+          phone: '', createdAt: new Date().toISOString(),
+          uid: user.uid, loginMethod: 'google'
+        });
+      }
+      showToast('Google Login সফল! ✅', 'success');
+    } catch (err) {
+      if (err.code === 'auth/popup-closed-by-user') {
+        showToast('Google Login বাতিল করা হয়েছে।', 'info');
+      } else {
+        showToast('Google Login হয়নি: ' + (err.message || err.code), 'error');
+      }
     }
   }
 </script>
@@ -2782,11 +2848,20 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+    const googleProvider = new GoogleAuthProvider();
+
     // Expose Firebase globally for product page
     window._fbDb = db;
     window._fbRef = ref;
     window._fbOnValue = onValue;
-    const googleProvider = new GoogleAuthProvider();
+
+    // Resolve the ready promise — এখন সব button functions কাজ করবে
+    window._firebaseResolve({
+      auth, db, googleProvider,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword,
+      signInWithPopup, signInWithRedirect,
+      ref, set, get, onValue, push, update, increment, signOut
+    });
 
     // Handle Google redirect result
     getRedirectResult(auth).then(async (result) => {
@@ -2819,13 +2894,11 @@
     window._currentUser = null;
     onAuthStateChanged(auth, (user) => {
       window._currentUser = user;
-      // Refer page open থাকলে reload করো
       if (typeof loadReferData === 'function') {
         const rp = document.getElementById('refer-page');
         if (rp && rp.style.display !== 'none') loadReferData();
       }
       if (user) {
-        // User logged in
         document.getElementById('nav-login-btn').style.display = 'none';
         document.getElementById('nav-register-btn').style.display = 'none';
         document.getElementById('nav-user-btn').style.display = 'flex';
@@ -2835,116 +2908,11 @@
         hidePage('login-page');
         hidePage('register-page');
       } else {
-        // User logged out
         document.getElementById('nav-login-btn').style.display = 'block';
         document.getElementById('nav-register-btn').style.display = 'block';
         document.getElementById('nav-user-btn').style.display = 'none';
       }
     });
-
-    // REGISTER
-    window.doRegister_firebase = async function() {
-      const name = document.getElementById('reg-name').value.trim();
-      const phone = document.getElementById('reg-phone').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-
-      if (!name || !phone || !password) {
-        showToast('সব তথ্য পূরণ করুন!', 'error'); return;
-      }
-      if (password.length < 6) {
-        showToast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে!', 'error'); return;
-      }
-      if (!email) {
-        showToast('ইমেইল দিন!', 'error'); return;
-      }
-
-      try {
-        showToast('একটু অপেক্ষা করুন...', 'info');
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Save user info to Realtime Database
-        await set(ref(db, 'users/' + user.uid), {
-          name: name,
-          phone: phone,
-          email: email,
-          createdAt: new Date().toISOString(),
-          uid: user.uid
-        });
-
-        showToast('Registration সফল হয়েছে! ✅', 'success');
-        if (window.applyReferral) window.applyReferral(user.uid);
-      } catch (err) {
-        if (err.code === 'auth/email-already-in-use') {
-          showToast('এই ইমেইল দিয়ে আগেই একাউন্ট আছে!', 'error');
-        } else {
-          showToast('Error: ' + err.message, 'error');
-        }
-      }
-    };
-
-    // LOGIN with email/password
-    window.doLogin_firebase = async function() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      if (!email || !password) {
-        showToast('ইমেইল ও পাসওয়ার্ড দিন!', 'error'); return;
-      }
-
-      try {
-        showToast('Login হচ্ছে...', 'info');
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast('Login সফল হয়েছে! ✅', 'success');
-      } catch (err) {
-        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-          showToast('ইমেইল বা পাসওয়ার্ড ভুল!', 'error');
-        } else {
-          showToast('Error: ' + err.message, 'error');
-        }
-      }
-    };
-
-    // LOGIN with Google
-    window.googleLogin_firebase = async function() {
-      try {
-        showToast('Google Login হচ্ছে...', 'info');
-        let result = null;
-        try {
-          result = await signInWithPopup(auth, googleProvider);
-        } catch (popupErr) {
-          if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/cancelled-popup-request' || popupErr.code === 'auth/popup-closed-by-user') {
-            showToast('Popup blocked! Redirect করা হচ্ছে...', 'info');
-            await signInWithRedirect(auth, googleProvider);
-            return; // redirect will reload the page, result handled by getRedirectResult above
-          }
-          throw popupErr;
-        }
-        if (!result || !result.user) return;
-        const user = result.user;
-
-        // Save to Realtime Database if new user
-        const snapshot = await get(ref(db, 'users/' + user.uid));
-        if (!snapshot.exists()) {
-          await set(ref(db, 'users/' + user.uid), {
-            name: user.displayName || '',
-            email: user.email || '',
-            phone: '',
-            createdAt: new Date().toISOString(),
-            uid: user.uid,
-            loginMethod: 'google'
-          });
-        }
-        showToast('Google Login সফল! ✅', 'success');
-      } catch (err) {
-        if (err.code === 'auth/popup-closed-by-user') {
-          showToast('Google Login বাতিল করা হয়েছে।', 'info');
-        } else {
-          showToast('Google Login হয়নি: ' + (err.message || err.code), 'error');
-        }
-      }
-    };
 
     // LOGOUT
     window.doLogout = async function() {
